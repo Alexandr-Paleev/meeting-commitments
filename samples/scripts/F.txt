@@ -1,0 +1,2 @@
+# title: Samples A and B joined into one file (longer than three minutes)
+# concat: A B

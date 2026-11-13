@@ -1,0 +1,73 @@
+{
+  "sample": "X",
+  "decline": null,
+  "speakers": {
+    "FirstName": [1],
+    "SecondName": [2]
+  },
+  "items": [
+    {
+      "id": "kebab-case-id",
+      "section": "commitment",
+      "keywords": ["word", "word|alternative"],
+      "owner": "Name",
+      "deadline": "by Friday",
+      "needsDateContext": true,
+      "resolvedDate": null,
+      "deadlineHistory": [],
+      "kind": null,
+      "lines": [0],
+      "ownerLines": [0],
+      "deadlineLines": [0],
+      "dateContextLines": []
+    },
+    {
+      "id": "kebab-case-id-2",
+      "section": "not_commitment",
+      "keywords": ["word"],
+      "owner": null,
+      "deadline": null,
+      "needsDateContext": null,
+      "resolvedDate": null,
+      "deadlineHistory": [],
+      "kind": "deferred",
+      "lines": [0],
+      "ownerLines": [],
+      "deadlineLines": [],
+      "dateContextLines": []
+    },
+    {
+      "id": "kebab-case-id-3",
+      "section": "unresolved_question",
+      "keywords": ["word"],
+      "owner": null,
+      "deadline": null,
+      "needsDateContext": null,
+      "resolvedDate": null,
+      "deadlineHistory": [],
+      "kind": null,
+      "lines": [0],
+      "ownerLines": [],
+      "deadlineLines": [],
+      "dateContextLines": []
+    },
+    {
+      "id": "kebab-case-id-4",
+      "section": "clarification",
+      "keywords": ["word"],
+      "owner": null,
+      "deadline": null,
+      "needsDateContext": null,
+      "resolvedDate": null,
+      "deadlineHistory": [],
+      "kind": null,
+      "lines": [0],
+      "ownerLines": [],
+      "deadlineLines": [],
+      "dateContextLines": []
+    }
+  ],
+  "mustNotBeAgreed": [
+    { "keywords": ["word"], "lines": [0], "why": "short reason" }
+  ]
+}

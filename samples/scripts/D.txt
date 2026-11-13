@@ -1,0 +1,10 @@
+# title: Office move, the speakers never say their names
+# voice: FIRST aura-2-thalia-en
+# voice: SECOND aura-2-apollo-en
+1 | FIRST | Hi, thanks for joining on short notice.
+2 | SECOND | No problem. This is about the office move, right?
+3 | FIRST | Yes. The movers need a final headcount before they can quote.
+4 | SECOND | I'll send them the headcount by Thursday.
+5 | FIRST | Great. And what about the new key cards?
+6 | SECOND | Let's think about that next week, it's not urgent.
+7 | FIRST | Fine by me. Thanks, talk soon.

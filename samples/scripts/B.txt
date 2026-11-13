@@ -1,0 +1,34 @@
+# title: Product launch check-in (variant of A, one agreement changed in lines 27 to 29)
+# voice: EMMA aura-2-thalia-en
+# voice: DANIEL aura-2-apollo-en
+1 | EMMA | Hi, I'm Emma, I run marketing. Thanks for making time for the launch check-in.
+2 | DANIEL | Sure. I'm Daniel, the product lead. Where do you want to start?
+3 | EMMA | Quick status first. Is the build still on track?
+4 | DANIEL | Yes. QA signed off yesterday and the build is stable, so we're in good shape.
+5 | EMMA | Great. Then let's talk about the release notes. We need them before the press preview.
+6 | DANIEL | Okay, I can take that. I'll draft the release notes and have them ready by Wednesday.
+7 | EMMA | Wednesday works. Thank you.
+8 | DANIEL | Next, the trade show next month. Do we have banners for the booth yet?
+9 | EMMA | Not yet. I'll order the banners this week. I know a printer who's quick.
+10 | DANIEL | Perfect, one less thing to worry about.
+11 | DANIEL | We could also run a launch webinar for existing customers, and walk them through the new features.
+12 | EMMA | Hmm, maybe. Let's think about it. I'm not sure we have the people for it right now.
+13 | DANIEL | Fair enough.
+14 | EMMA | Then the pricing page. The new prices go live on Friday, so the page has to be updated before Friday.
+15 | DANIEL | Agreed, that has to happen before Friday. I honestly don't know who should own it, though.
+16 | EMMA | Me neither. Let's not decide that today, but it definitely has to get done.
+17 | DANIEL | Okay.
+18 | EMMA | I'll also write the launch email to customers. I can send you a draft by Thursday.
+19 | DANIEL | Sounds good, Thursday works for me.
+20 | DANIEL | One open point. Has legal approved the new terms of service?
+21 | EMMA | I honestly don't know. I haven't heard anything from them.
+22 | DANIEL | Hmm. Okay.
+23 | EMMA | Oh, one more thing about the release notes. The press preview moved earlier, so Wednesday is too late. Could you do Tuesday instead?
+24 | DANIEL | Tuesday is tight, but yes. I'll get the release notes to you by Tuesday.
+25 | EMMA | Thanks, that really helps.
+26 | DANIEL | Anything else on the trade show?
+27 | EMMA | Actually, yes. Good news, the booth at the trade show is confirmed and the budget is approved.
+28 | DANIEL | Great. So we still need the banners.
+29 | EMMA | Right, the banners are still on. I'll order them this week, like I said.
+30 | DANIEL | Good. I think that's everything for today.
+31 | EMMA | Yes. Thanks, Daniel. Talk soon.

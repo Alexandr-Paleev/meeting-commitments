@@ -1,0 +1,26 @@
+# title: Customer workshop planning
+# voice: LAURA aura-2-thalia-en
+# voice: KEVIN aura-2-apollo-en
+1 | LAURA | Hi, I'm Laura from customer success. Thanks for joining.
+2 | KEVIN | Hi Laura. I'm Kevin, I'm on the sales engineering team.
+3 | LAURA | So, the onsite workshop for Halvorsen Logistics. For context, today is Monday, March 3rd, and the workshop is two weeks from today.
+4 | KEVIN | Okay, so not much time.
+5 | LAURA | No. First, the agenda. I'll send the agenda to their team by Friday.
+6 | KEVIN | Good. Friday gives them a week to comment.
+7 | KEVIN | I'll book the training room on our floor. It fits about twenty people.
+8 | LAURA | Great, thanks.
+9 | LAURA | Now the big one, the live demo of the new routing module. Kevin, could you run it?
+10 | KEVIN | Maybe. It depends on my travel. I might be in Chicago that week.
+11 | LAURA | Okay. If you can't make it, maybe Sam could run it instead.
+12 | KEVIN | Possibly, but Sam hasn't seen the latest build yet.
+13 | LAURA | Hmm. Let's see how your travel turns out.
+14 | KEVIN | Yeah, let's see.
+15 | LAURA | Do we know how many people they're sending?
+16 | KEVIN | No idea yet. Their project manager hasn't said.
+17 | LAURA | Okay. We could order lunch for everyone, by the way.
+18 | KEVIN | Hmm, I'm not sure. Last time half of them left before lunch.
+19 | LAURA | True. Let's skip that for now.
+20 | KEVIN | One more thing. Should we invite their IT team, or only the dispatchers?
+21 | LAURA | Good question. I don't know yet.
+22 | KEVIN | Okay. I think that's it for today.
+23 | LAURA | Thanks, Kevin. Talk soon.
