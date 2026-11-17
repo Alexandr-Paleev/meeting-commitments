@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { buildTranscript, checkInput, formatTime, type DeepgramResponse } from "../lib/transcript";
+import { formatTime } from "../lib/format";
+import { buildTranscript, checkInput, type DeepgramResponse } from "../lib/transcript";
 
 // Times are halves so the expected values below are exact.
 const word = (text: string, start: number) => ({

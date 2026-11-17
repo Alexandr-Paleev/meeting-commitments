@@ -207,3 +207,26 @@ wrong and how it was caught.
   503s, so it may include SDK retries, which our metrics cannot see). Cost per recording at list
   price: $0.005 to $0.014.
 
+## 2026-11-17 - UI (phase 3)
+
+- One page. `app/page.tsx` runs the two steps in order and shows the transcript as soon as it
+  arrives. `app/results.tsx` shows a decline, or who is who, the four sections and how the result
+  was made. `app/quotes.tsx` turns segment ids into quotes and plays just one segment of the
+  uploaded file. `formatTime` moved to `lib/format.ts`, shared by the server and the browser.
+- Checked in the build output that the browser bundle has no server code: no Gemini or Deepgram
+  URL, no secret name and no zod in `.next/static`.
+- The browser checks size and duration before uploading, so F is refused without any API call.
+  The server checks again.
+- Checked in headless Chrome over the DevTools protocol (a scratch script, not committed): sample A
+  end to end, with the transcript shown while extraction ran, all six expected items, and the
+  first play button stopping at 30.06 s for a target of 30.04 s; F refused in the browser; E
+  declined as no speech; phone width 390 px and dark mode on saved answers. No console errors.
+- What went wrong: the React Compiler lint rule `react-hooks/immutability` refused setting
+  `currentTime` on an audio ref passed into the hook, so the ref now lives in the hook. Several
+  runs failed with connect timeouts to api.deepgram.com and to Google from this machine (curl
+  showed TCP connects of 4 to 12 s and TLS handshakes up to 19 s). The page showed the error and
+  the Try again button as designed.
+- Model output: the model sometimes starts a task in lower case; the page capitalizes the first
+  letter. A has now run three times: runs 1 and 3 match its expected file, run 2 listed the
+  pricing page only as an open question.
+

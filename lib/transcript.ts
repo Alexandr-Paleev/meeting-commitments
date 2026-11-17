@@ -4,6 +4,7 @@
 
 import { z } from "zod";
 import { AUDIO_LIMITS, secret, serverConfig } from "./config";
+import { tooLongMessage } from "./format";
 import { sttCostUsd } from "./pricing";
 
 export const Segment = z.object({
@@ -124,10 +125,7 @@ export function buildTranscript(response: DeepgramResponse): Transcript {
 // speakers who never say their names, and unintelligible speech.
 export function checkInput(transcript: Transcript): Decline | null {
   if (transcript.durationSec > AUDIO_LIMITS.maxSeconds + AUDIO_LIMITS.toleranceSeconds) {
-    return {
-      reason: "too_long",
-      message: `The recording is ${formatTime(transcript.durationSec)} long. The limit is ${formatTime(AUDIO_LIMITS.maxSeconds)}.`,
-    };
+    return { reason: "too_long", message: tooLongMessage(transcript.durationSec) };
   }
   if (transcript.segments.length === 0) {
     return { reason: "no_speech", message: "No speech was found in the recording." };
@@ -139,10 +137,4 @@ export function checkInput(transcript: Transcript): Decline | null {
     };
   }
   return null;
-}
-
-// 75.4 -> "1:15"
-export function formatTime(seconds: number): string {
-  const whole = Math.floor(seconds);
-  return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, "0")}`;
 }
