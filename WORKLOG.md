@@ -230,3 +230,54 @@ wrong and how it was caught.
   letter. A has now run three times: runs 1 and 3 match its expected file, run 2 listed the
   pricing page only as an open question.
 
+## 2026-11-17 - Eval (phase 4): first full run
+
+- Done: `npm run eval` runs every sample 3 times through `transcribeAudio` and `extract` (the
+  functions the routes call) and checks each output with `scripts/eval-checks.ts`, by the rules in
+  `samples/README.md`. It writes `eval/report.md` and `eval/runs.json`; `--saved` checks the saved
+  outputs again without any API call. 7 unit tests cover the checks on a made-up recording. Before
+  spending quota, the checks ran on the saved outputs of the first sample runs and found the known
+  misses plus one new one (the B speaker error below, also present in that A output).
+- Hosting estimate added to `lib/pricing.ts` after checking Vercel's docs: 2 GB is the default
+  function size on Pro with fluid compute; memory is billed while the function waits, active CPU
+  only while code runs.
+- Result: 12 of 18 runs passed. A 3 of 3, B 0 of 3, C 0 of 3, D, E and F 3 of 3; B vs A 2 of 3
+  pairs. Numbers and details: `eval/baseline/report.md` (kept as the baseline; `--out` writes
+  later runs elsewhere).
+- B, all runs: the transcript gives Daniel's "I honestly don't know who should own it, though." to
+  Emma's label, and the model cites it for the pricing page (no owner). A speech to text error that
+  the app cannot see, since it never knows the true speaker. The same sentence has the wrong label
+  in A too, but there the model did not cite it.
+- B run 2 also listed the pricing page only as an open question (as A did once before) and wrote
+  the earlier deadline as "ready by Wednesday" instead of "by Wednesday".
+- C, all runs: the live demo came back as a deferred proposal, not Needs clarification. C run 1
+  also missed the headcount question.
+- Model output wrong, caught by the app's own checks: in C runs 1 and 2 the first answer resolved
+  the date and still set needsDateContext; the retry fixed it both times.
+- Time: extraction took 14 to 58 s on the free tier (median 32 s for A), against 12 to 14 s for
+  single runs earlier today, with similar output token counts. The spread is the free tier's
+  serving speed. Above the 20 s mark from Phase 0, so a lower thinking level goes to the user.
+- Went wrong: a shell command with a heredoc was blocked by the safety check because it could not
+  be parsed (it removed nothing); the same edit was made with the edit tool.
+
+## 2026-11-17 - Prompt: deferred work against an open owner or deadline; thinking level measured
+
+- Change, with the user's OK after the first eval: the prompt now says that "deferred" means doing
+  the work at all was put off, and that work going ahead while its owner or deadline is left open
+  between named candidates belongs in Needs clarification. Two sentences, no wording from any
+  sample.
+- Eval after the change (`eval/report.md`): 15 of 18 runs passed, against 12 before. C 3 of 3
+  (was 0): the live demo comes back as Needs clarification with both candidates. A's webinar stays
+  deferred in every run. B vs A 3 of 3 pairs.
+- The 3 runs that still fail (A run 1, B runs 2 and 3) fail only on speaker labels: the model cites
+  "I honestly don't know who should own it, though.", which speech to text gives to the wrong
+  speaker (A run 1 also cites a mislabelled "Thank you."). Every other check passed in all 18 runs.
+- Thinking level `medium` measured with the same prompt (`eval/medium/report.md`): the list came
+  much sooner and cost less, but only 10 of 18 runs passed. The pricing page (agreed, no owner)
+  went to Needs clarification in 5 of 6 A and B runs, and C had one wrong kind and one missed
+  clarification. The default stays `high`.
+- The report table now splits the cost into speech to text and model, and shows the time to the
+  transcript and to the list. All three reports were rebuilt from their saved outputs (`--saved`).
+- Went wrong: one network error to Deepgram ("other side closed") during the medium run, retried
+  by the eval and listed in its report.
+

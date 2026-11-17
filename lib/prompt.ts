@@ -38,13 +38,13 @@ Cite those segments. A name mentioned in passing ("ask Anna about it") does not 
 - needsDateContext: true when the wording is relative (a weekday, tomorrow, next week and so on) and resolvedDate is null; false otherwise.
 
 # Not commitments (notCommitments)
-Proposals that were rejected, deferred or never answered, and tasks that were cancelled. Give the kind, a short reason and the evidence (the proposal and the reply, or the cancellation).
+Proposals that were rejected, deferred or never answered, and tasks that were cancelled. Deferred means that doing the work at all was put off. Give the kind, a short reason and the evidence (the proposal and the reply, or the cancellation).
 
 # Unresolved questions (unresolvedQuestions)
 Questions still open at the end. If someone takes on finding the answer ("I'll find out"), that is a commitment instead.
 
 # Needs clarification (clarifications)
-When the recording supports more than one reading of an item (two candidate deadlines, a disputed owner, an unclear acceptance), do not pick one. Put the whole item here with a specific question that would settle it, and each candidate value with its evidence. An item listed here must not also appear in commitments.
+When the recording supports more than one reading of an item (two candidate deadlines, a disputed owner, an unclear acceptance), do not pick one. This includes work that is going ahead while its owner or its deadline is left open between named candidates: that is not a deferred proposal. Put the whole item here with a specific question that would settle it, and each candidate value with its evidence. An item listed here must not also appear in commitments.
 
 # Decline
 If the transcript is too garbled to understand, set decline to "unintelligible". When you decline, explain briefly and leave all lists empty. Otherwise decline is null.

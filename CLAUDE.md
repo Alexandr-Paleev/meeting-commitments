@@ -16,6 +16,8 @@ hypothetical needs.
   5 README and final check. Never deploy and never push.
 - Small commits after each working step, with clear messages. Never add a Co-Authored-By trailer or
   any other AI attribution line to commit messages (the user's rule since 2026-11-17).
+- Claude never runs `git commit` itself: it gives the user the exact `git add` and `git commit`
+  commands, and the user runs them (the user's rule since 2026-11-17).
 - Append an entry to WORKLOG.md for each work step: what was done, what went wrong, and every case
   where model output was wrong and how it was caught.
 - The assignment brief text is never committed. Docs describe the product in our own words.
@@ -142,3 +144,9 @@ hypothetical needs.
   so Kevin's label never said his name.
 - The same input can give different answers from run to run (seen on A), so the eval runs each
   sample more than once and reports pass rates.
+- After the first eval (12 of 18 runs, `eval/baseline/`), with the user's OK: the prompt tells a
+  deferred proposal (the work itself put off) from work whose owner or deadline is open between
+  named candidates (Needs clarification). Result 15 of 18 (`eval/report.md`); the other runs fail
+  only on speaker labels from speech to text.
+- The thinking level stays `high`: `medium` was faster but passed 10 of 18 runs
+  (`eval/medium/report.md`).
