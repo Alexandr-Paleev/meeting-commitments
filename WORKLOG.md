@@ -157,3 +157,21 @@ wrong and how it was caught.
   300 s limit. Proposed to the user; one env variable switches back.
 - Tooling: one measurement command was blocked by a built-in safety check that could not parse it
   (there was no removal in it). The same measurement ran as a script file instead.
+
+## 2026-11-17 - Expected files drafted by Claude at the user's request
+
+- The user asked Claude to write the expected files instead of writing them by hand. Done under
+  three conditions, recorded in CLAUDE.md and `samples/README.md`: drafted only from the scripts,
+  before any pipeline run on a sample (no sample has been transcribed or extracted yet); the user
+  reviews them before they are committed; the notes say who wrote them.
+- Checked with a read-only script against the scripts: valid JSON, every field present, every line
+  exists, each name is said by its own speaker, owner lines are spoken by or name the owner,
+  deadline wordings and keywords appear in their lines, the resolved date has date context lines,
+  and A and B differ in exactly one item (banners). No problems found.
+- Judgment calls left for the user to confirm: A webinar is "deferred" ("Let's think about it"),
+  not "rejected"; A pricing page is an agreed task with no owner (not a clarification); A release
+  notes end at "by Tuesday" with "by Wednesday" as history; A banners are "cancelled", B banners
+  are agreed (owner Emma, "this week"); C agenda "by Friday" resolves to 03-07 from "today is
+  Monday, March 3rd" (no year said); C training room has an owner and no deadline; C live demo is a
+  clarification; C lunch is "rejected" ("Let's skip that for now"); C has two open questions
+  (headcount, inviting their IT team); D, E, F are declines.

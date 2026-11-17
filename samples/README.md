@@ -15,8 +15,8 @@
 - Manifests: `manifests/<name>.json` with the true speaker, start and end (seconds) of every line,
   and the TTS cost of the sample.
 - Regenerate: put `DEEPGRAM_API_KEY` in `.env.local`, then `npm run samples:generate`.
-- Expected results: `<name>.expected.json`, written by hand from the scripts, committed before any
-  pipeline run. Format below.
+- Expected results: `<name>.expected.json`, drafted by Claude from the scripts at the user's request,
+  reviewed by the user and committed before any pipeline run. Format below.
 
 ## Expected file format
 

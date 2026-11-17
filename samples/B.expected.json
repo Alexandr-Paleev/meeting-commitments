@@ -1,0 +1,103 @@
+{
+  "sample": "B",
+  "decline": null,
+  "speakers": {
+    "Emma": [1],
+    "Daniel": [2]
+  },
+  "items": [
+    {
+      "id": "release-notes",
+      "section": "commitment",
+      "keywords": ["release notes"],
+      "owner": "Daniel",
+      "deadline": "by Tuesday",
+      "needsDateContext": true,
+      "resolvedDate": null,
+      "deadlineHistory": ["by Wednesday"],
+      "kind": null,
+      "lines": [5, 6, 7, 23, 24],
+      "ownerLines": [6, 24],
+      "deadlineLines": [23, 24],
+      "dateContextLines": []
+    },
+    {
+      "id": "banners",
+      "section": "commitment",
+      "keywords": ["banners"],
+      "owner": "Emma",
+      "deadline": "this week",
+      "needsDateContext": true,
+      "resolvedDate": null,
+      "deadlineHistory": [],
+      "kind": null,
+      "lines": [8, 9, 10, 27, 28, 29],
+      "ownerLines": [9, 29],
+      "deadlineLines": [9, 29],
+      "dateContextLines": []
+    },
+    {
+      "id": "webinar",
+      "section": "not_commitment",
+      "keywords": ["webinar"],
+      "owner": null,
+      "deadline": null,
+      "needsDateContext": null,
+      "resolvedDate": null,
+      "deadlineHistory": [],
+      "kind": "deferred",
+      "lines": [11, 12, 13],
+      "ownerLines": [],
+      "deadlineLines": [],
+      "dateContextLines": []
+    },
+    {
+      "id": "pricing-page",
+      "section": "commitment",
+      "keywords": ["pricing"],
+      "owner": null,
+      "deadline": "before Friday",
+      "needsDateContext": true,
+      "resolvedDate": null,
+      "deadlineHistory": [],
+      "kind": null,
+      "lines": [14, 15, 16, 17],
+      "ownerLines": [],
+      "deadlineLines": [14, 15],
+      "dateContextLines": []
+    },
+    {
+      "id": "launch-email",
+      "section": "commitment",
+      "keywords": ["email"],
+      "owner": "Emma",
+      "deadline": "by Thursday",
+      "needsDateContext": true,
+      "resolvedDate": null,
+      "deadlineHistory": [],
+      "kind": null,
+      "lines": [18, 19],
+      "ownerLines": [18],
+      "deadlineLines": [18, 19],
+      "dateContextLines": []
+    },
+    {
+      "id": "legal-terms",
+      "section": "unresolved_question",
+      "keywords": ["legal"],
+      "owner": null,
+      "deadline": null,
+      "needsDateContext": null,
+      "resolvedDate": null,
+      "deadlineHistory": [],
+      "kind": null,
+      "lines": [20, 21],
+      "ownerLines": [],
+      "deadlineLines": [],
+      "dateContextLines": []
+    }
+  ],
+  "mustNotBeAgreed": [
+    { "keywords": ["webinar"], "lines": [11, 12, 13], "why": "Proposed, then put off (\"Let's think about it\"), never accepted" }
+  ]
+}

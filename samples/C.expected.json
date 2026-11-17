@@ -1,0 +1,104 @@
+{
+  "sample": "C",
+  "decline": null,
+  "speakers": {
+    "Laura": [1],
+    "Kevin": [2]
+  },
+  "items": [
+    {
+      "id": "agenda",
+      "section": "commitment",
+      "keywords": ["agenda"],
+      "owner": "Laura",
+      "deadline": "by Friday",
+      "needsDateContext": false,
+      "resolvedDate": "03-07",
+      "deadlineHistory": [],
+      "kind": null,
+      "lines": [5, 6],
+      "ownerLines": [5],
+      "deadlineLines": [5, 6],
+      "dateContextLines": [3]
+    },
+    {
+      "id": "training-room",
+      "section": "commitment",
+      "keywords": ["training room"],
+      "owner": "Kevin",
+      "deadline": null,
+      "needsDateContext": null,
+      "resolvedDate": null,
+      "deadlineHistory": [],
+      "kind": null,
+      "lines": [7, 8],
+      "ownerLines": [7],
+      "deadlineLines": [],
+      "dateContextLines": []
+    },
+    {
+      "id": "live-demo",
+      "section": "clarification",
+      "keywords": ["demo"],
+      "owner": null,
+      "deadline": null,
+      "needsDateContext": null,
+      "resolvedDate": null,
+      "deadlineHistory": [],
+      "kind": null,
+      "lines": [9, 10, 11, 12, 13, 14],
+      "ownerLines": [],
+      "deadlineLines": [],
+      "dateContextLines": []
+    },
+    {
+      "id": "headcount",
+      "section": "unresolved_question",
+      "keywords": ["how many"],
+      "owner": null,
+      "deadline": null,
+      "needsDateContext": null,
+      "resolvedDate": null,
+      "deadlineHistory": [],
+      "kind": null,
+      "lines": [15, 16],
+      "ownerLines": [],
+      "deadlineLines": [],
+      "dateContextLines": []
+    },
+    {
+      "id": "lunch",
+      "section": "not_commitment",
+      "keywords": ["lunch"],
+      "owner": null,
+      "deadline": null,
+      "needsDateContext": null,
+      "resolvedDate": null,
+      "deadlineHistory": [],
+      "kind": "rejected",
+      "lines": [17, 18, 19],
+      "ownerLines": [],
+      "deadlineLines": [],
+      "dateContextLines": []
+    },
+    {
+      "id": "invite-it-team",
+      "section": "unresolved_question",
+      "keywords": ["invite"],
+      "owner": null,
+      "deadline": null,
+      "needsDateContext": null,
+      "resolvedDate": null,
+      "deadlineHistory": [],
+      "kind": null,
+      "lines": [20, 21],
+      "ownerLines": [],
+      "deadlineLines": [],
+      "dateContextLines": []
+    }
+  ],
+  "mustNotBeAgreed": [
+    { "keywords": ["demo"], "lines": [9, 10, 11, 12, 13, 14], "why": "Kevin only said maybe, it depends on his travel; Sam was a possible alternative. Nobody was confirmed" },
+    { "keywords": ["lunch"], "lines": [17, 18, 19], "why": "Proposed, then skipped for now" }
+  ]
+}

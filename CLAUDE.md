@@ -14,7 +14,8 @@ hypothetical needs.
 - Phases with an explicit OK from the user at each gate: 0 plan, 1 scaffold and samples, then the
   user commits the expected files, 2 pipeline and unit tests, 3 UI, 4 eval, report and NOTES,
   5 README and final check. Never deploy and never push.
-- Small commits after each working step, with clear messages ending in the Co-Authored-By trailer.
+- Small commits after each working step, with clear messages. Never add a Co-Authored-By trailer or
+  any other AI attribution line to commit messages (the user's rule since 2026-11-17).
 - Append an entry to WORKLOG.md for each work step: what was done, what went wrong, and every case
   where model output was wrong and how it was caught.
 - The assignment brief text is never committed. Docs describe the product in our own words.
@@ -25,8 +26,10 @@ hypothetical needs.
 
 ## Test set
 
-- `samples/*.expected.json` are written by the user by hand. Never create or edit them, and never
-  derive them from model output. If one looks wrong, say so to the user.
+- `samples/*.expected.json`: at the user's request (2026-11-17) Claude drafted them from the scripts,
+  before any pipeline run on a sample, and the user reviews them before they are committed. After
+  that commit, never edit them, and never derive them from model output. If one looks wrong, say so
+  to the user.
 - No special-casing of sample files anywhere. Bundled samples go through the same pipeline as uploads.
 - If the eval fails, fix the cause generally and log it in WORKLOG.md. Never tune the prompt to sample
   wording, never weaken a check to get a pass. An honest failure beats a perfect-looking report.
