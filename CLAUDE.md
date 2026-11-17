@@ -95,3 +95,16 @@ hypothetical needs.
 - Hosting cost is reported at Vercel Pro prices, separate from variable cost.
 - Stretch goals only after the eval is green: microphone input, a holdout written by the user after
   the pipeline is frozen, a cheaper extraction model with pass rate vs cost.
+
+## Decisions from 2026-11-17 (scope cut to finish on time)
+
+- No switch to another LLM provider to save API cost. The Gemini free tier was rejected: free-tier
+  content may be used to improve Google products, and its quota would be shared by the demo and the
+  eval. Costs are reported at list prices anyway.
+- Claude Opus 5.5 is used for development too; no separate cheaper dev model.
+- Stretch goals are dropped. The refusal fallback is deferred: added only if time remains,
+  otherwise listed as a known limit.
+- Phase 2 code is written while the user writes the expected files. No pipeline run on a sample
+  before its expected file is committed.
+- Deepgram: diarization through `diarize_model=latest` (`diarize` is deprecated); words are read
+  from `utterances`, the documented place for `punctuated_word`.

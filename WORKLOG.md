@@ -32,3 +32,14 @@ wrong and how it was caught.
 - Went wrong: the first version of the concat branch in the generator added edge silence and a gap
   twice around joined samples; caught on reading it back and simplified to joining rendered samples
   back to back.
+
+## 2026-11-17 - Scope decisions before Phase 2
+
+- Done: compared moving extraction to the Gemini free tier with staying on Claude. Stayed on
+  Claude: free-tier content may be used to improve Google products, the free quota would be shared
+  by the demo and the eval, and costs are reported at list prices anyway, so the only saving would
+  be a few dollars of development spend. Scope cut agreed with the user (CLAUDE.md, decisions from
+  2026-11-17): no stretch goals, refusal fallback deferred, Phase 2 code written while the user
+  writes the expected files.
+- Went wrong: the sample audio is not generated yet because `.env.local` still has placeholder
+  keys.
