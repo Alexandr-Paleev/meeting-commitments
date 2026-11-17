@@ -109,3 +109,26 @@ wrong and how it was caught.
   what the transcript says. Goes into the known limits.
 - Sample scripts were not changed and no sample was transcribed: their deadlines are already words
   ("by Wednesday", "by Friday"), so the switch does not change how the expected files are written.
+
+## 2026-11-17 - Extraction moved to the Gemini free tier
+
+- Why: the user does not want to pay for API credits. Checked first on the official pages: a
+  Claude Pro or Max subscription does not pay for Console API keys, subscription login may not be
+  used in other apps, and only Max, Ultra and Team include monthly API credits. The brief allows
+  free credits as long as costs are reported at list price.
+- Docs checked: Google AI Studio docs (key creation, available regions, free tier terms, pricing,
+  thinking levels) and the installed SDK's type definitions for the exact `generateContent` fields
+  (`responseJsonSchema` and its keyword list, `ThinkingLevel`, `FinishReason`, `usageMetadata`:
+  `thoughtsTokenCount` is separate from `candidatesTokenCount` and billed as output). Free tier
+  terms: content may be used to improve Google products and read by human reviewers; only paid
+  services for apps offered to users in the EEA, Switzerland or the UK. Vercel request headers:
+  `x-vercel-ip-country` is an ISO 3166-1 alpha-2 code; the page does not say it cannot be spoofed,
+  which is acceptable for a good-faith terms check.
+- Done: `lib/extract.ts` calls `generateContent` with the system prompt, the JSON schema and the
+  thinking level; the retry sends the previous model turn back unchanged (thought signatures
+  included). The schema Zod generates was walked key by key: every keyword is in Gemini's supported
+  list except `$schema`, which is dropped. Prices (paid tier list prices), config, `.env.example`
+  updated; Anthropic SDK removed; both routes refuse EEA, Swiss and UK visitors with 451 on the free
+  tier. 45 unit tests with a fake client; lint and typecheck clean. `npm audit --omit=dev`: 0
+  findings (7 moderate ones are in dev-only lint tooling).
+- Not done yet: no live Gemini call, waiting for the key.

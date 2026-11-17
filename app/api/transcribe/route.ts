@@ -2,7 +2,7 @@
 // sends it to /api/extract. No audio is stored: the bytes go to Deepgram and are dropped.
 
 import { AUDIO_LIMITS } from "@/lib/config";
-import { clientIp, takeRequest } from "@/lib/limits";
+import { clientIp, REGION_MESSAGE, regionBlocked, takeRequest } from "@/lib/limits";
 import { signTranscript } from "@/lib/sign";
 import { transcribeAudio } from "@/lib/transcript";
 
@@ -12,6 +12,8 @@ const error = (status: number, message: string, headers?: HeadersInit) =>
   Response.json({ error: message }, { status, headers });
 
 export async function POST(request: Request) {
+  // Checked here too, so a visitor who cannot get a list does not spend a transcription.
+  if (regionBlocked(request)) return error(451, REGION_MESSAGE);
   const allowance = takeRequest(clientIp(request));
   if (!allowance.ok) return error(429, allowance.message, { "Retry-After": String(allowance.retryAfterSec) });
 

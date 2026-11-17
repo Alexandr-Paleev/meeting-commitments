@@ -1,6 +1,7 @@
 // Signature, prices, limits and the prompt messages.
 
 import { describe, expect, it, vi } from "vitest";
+import { regionBlocked } from "../lib/limits";
 import { llmCostUsd, sttCostUsd, tokenPrice } from "../lib/pricing";
 import { problemsMessage, transcriptMessage } from "../lib/prompt";
 import { hasValidSignature, signTranscript } from "../lib/sign";
@@ -25,10 +26,11 @@ describe("transcript signature", () => {
 });
 
 describe("pricing", () => {
-  it("prices tokens at the list rates", () => {
-    expect(llmCostUsd("claude-opus-5-5", { input_tokens: 1_000_000, output_tokens: 0 })).toBeCloseTo(4);
-    expect(llmCostUsd("claude-opus-5-5", { input_tokens: 0, output_tokens: 1_000_000 })).toBeCloseTo(20);
-    expect(llmCostUsd("claude-opus-5-5", { input_tokens: 0, output_tokens: 0, cache_read_input_tokens: 1_000_000 })).toBeCloseTo(0.2);
+  it("prices tokens at the paid tier list rates, thinking as output", () => {
+    expect(llmCostUsd("gemini-4-hydrogen", { promptTokenCount: 1_000_000 })).toBeCloseTo(1.5);
+    expect(llmCostUsd("gemini-4-hydrogen", { candidatesTokenCount: 500_000, thoughtsTokenCount: 500_000 })).toBeCloseTo(7.5);
+    // Cached tokens are part of promptTokenCount and billed at the cached rate instead.
+    expect(llmCostUsd("gemini-4-hydrogen", { promptTokenCount: 1_000_000, cachedContentTokenCount: 1_000_000 })).toBeCloseTo(0.075);
   });
 
   it("prices speech to text per audio minute", () => {
@@ -56,6 +58,19 @@ describe("limits", () => {
     expect(capped.ok).toBe(false);
     expect(!capped.ok && capped.retryAfterSec).toBe(14 * 60 * 60); // until UTC midnight
     expect(takeRequest("3.3.3.3", Date.parse("2026-11-18T00:00:01Z")).ok).toBe(true);
+    vi.unstubAllEnvs();
+  });
+
+  it("refuses visitors from the EEA, Switzerland and the UK, on the free tier only", () => {
+    const from = (country?: string) =>
+      new Request("http://localhost/api/extract", { headers: country ? { "x-vercel-ip-country": country } : {} });
+    expect(regionBlocked(from("DE"))).toBe(true);
+    expect(regionBlocked(from("NO"))).toBe(true);
+    expect(regionBlocked(from("GB"))).toBe(true);
+    expect(regionBlocked(from("UA"))).toBe(false);
+    expect(regionBlocked(from())).toBe(false); // a local run has no country header
+    vi.stubEnv("GEMINI_PAID_TIER", "true");
+    expect(regionBlocked(from("DE"))).toBe(false);
     vi.unstubAllEnvs();
   });
 });

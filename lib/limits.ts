@@ -32,6 +32,25 @@ export function takeRequest(ip: string, now = Date.now()): Allowance {
   return { ok: true };
 }
 
+// Google's terms allow only the paid Gemini tier for apps offered to users in the EEA,
+// Switzerland or the UK. On the free tier both routes refuse those visitors.
+// Vercel sets x-vercel-ip-country (ISO 3166-1 alpha-2); local runs have no such header.
+const PAID_TIER_ONLY = new Set([
+  ...["AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "GR", "HR", "HU"], // EU
+  ...["IE", "IT", "LT", "LU", "LV", "MT", "NL", "PL", "PT", "RO", "SE", "SI", "SK"], // EU
+  ...["IS", "LI", "NO", "CH", "GB"], // rest of the EEA, Switzerland, UK
+]);
+
+export const REGION_MESSAGE =
+  "This public demo runs on Google's free Gemini tier, which may not be offered to users in the EEA, " +
+  "Switzerland or the UK. Please watch the demo video, or run the app with your own paid key (see the README).";
+
+export function regionBlocked(request: Request): boolean {
+  if (serverConfig().geminiPaidTier) return false;
+  const country = request.headers.get("x-vercel-ip-country")?.toUpperCase();
+  return country !== undefined && PAID_TIER_ONLY.has(country);
+}
+
 // Vercel sets x-forwarded-for to the client's public IP and overwrites any value the client sends.
 export function clientIp(request: Request): string {
   return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";

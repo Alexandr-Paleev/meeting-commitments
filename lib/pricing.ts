@@ -4,13 +4,13 @@
 const RETRIEVED = "2026-11-12";
 
 export const SOURCES = {
-  anthropic: "https://platform.claude.com/docs/en/about-claude/pricing",
+  gemini: "https://ai.google.dev/gemini-api/docs/pricing",
   deepgram: "https://deepgram.com/pricing",
   vercel: "https://vercel.com/pricing",
 } as const;
 
-// Speech to text: Deepgram Nova-3, pre-recorded, monolingual. Diarization and smart formatting
-// are included in this rate for pre-recorded audio.
+// Speech to text: Deepgram Nova-3, pre-recorded, monolingual. Diarization is included in this
+// rate for pre-recorded audio.
 export const STT_PRICE = {
   model: "nova-3",
   usdPerMinute: 0.0043,
@@ -26,25 +26,17 @@ export const TTS_PRICE = {
   retrieved: RETRIEVED,
 };
 
-// Claude, USD per million tokens. Thinking tokens are billed as output tokens.
-// Haiku 5.5 rates are the tier for prompts up to 100k tokens (our prompts are far smaller).
-// claude-opus-5 and claude-opus-4-8 can serve a request only if the refusal fallback is enabled
-// (deferred, see CLAUDE.md decisions from 2026-11-17).
-export type TokenPrice = {
-  inputPerMTok: number;
-  outputPerMTok: number;
-  cacheWrite5mPerMTok: number;
-  cacheReadPerMTok: number;
-};
+// Gemini, USD per million tokens: paid tier list prices (Standard). The demo runs on the free tier,
+// but free usage is not zero operating cost, so the eval and the notes report these prices.
+// Thinking tokens are billed as output tokens; cached input is implicit caching.
+// gemini-3.8-flash doubles from 2027-01-01 (input 1.5, output 7.5, cached 0.15).
+export type TokenPrice = { inputPerMTok: number; outputPerMTok: number; cachedInputPerMTok: number };
 
-export const CLAUDE_PRICES: Record<string, TokenPrice> = {
-  "claude-opus-5-5": { inputPerMTok: 4, outputPerMTok: 20, cacheWrite5mPerMTok: 5, cacheReadPerMTok: 0.2 },
-  "claude-sonnet-5-5": { inputPerMTok: 2, outputPerMTok: 10, cacheWrite5mPerMTok: 2.5, cacheReadPerMTok: 0.1 },
-  "claude-haiku-5-5": { inputPerMTok: 0.1, outputPerMTok: 0.5, cacheWrite5mPerMTok: 0.125, cacheReadPerMTok: 0.01 },
-  "claude-opus-5": { inputPerMTok: 5, outputPerMTok: 25, cacheWrite5mPerMTok: 6.25, cacheReadPerMTok: 0.5 },
-  "claude-opus-4-8": { inputPerMTok: 5, outputPerMTok: 25, cacheWrite5mPerMTok: 6.25, cacheReadPerMTok: 0.5 },
+export const GEMINI_PRICES: Record<string, TokenPrice> = {
+  "gemini-4-hydrogen": { inputPerMTok: 1.5, outputPerMTok: 7.5, cachedInputPerMTok: 0.075 },
+  "gemini-3.8-flash": { inputPerMTok: 0.75, outputPerMTok: 3.75, cachedInputPerMTok: 0.075 },
 };
-export const CLAUDE_PRICE_META = { source: SOURCES.anthropic, retrieved: RETRIEVED };
+export const GEMINI_PRICE_META = { source: SOURCES.gemini, retrieved: "2026-11-17" };
 
 // Hosting, reported separately from variable cost. Vercel Pro list rates (iad1, the default region).
 // The $20 per seat per month plan fee is a fixed cost and not part of the per-operation number.
@@ -68,25 +60,24 @@ export function sttCostUsd(model: string, audioSeconds: number): number {
 }
 
 export function tokenPrice(model: string): TokenPrice {
-  const price = CLAUDE_PRICES[model];
+  const price = GEMINI_PRICES[model];
   if (!price) throw new Error(`No price for model "${model}" in lib/pricing.ts`);
   return price;
 }
 
-// The token counts as reported in the API response's usage field.
+// Token counts as reported in the response's usageMetadata. promptTokenCount includes the cached
+// tokens; candidatesTokenCount does not include the thinking tokens.
 export type TokenUsage = {
-  input_tokens: number;
-  output_tokens: number; // includes thinking tokens
-  cache_creation_input_tokens?: number | null;
-  cache_read_input_tokens?: number | null;
+  promptTokenCount?: number;
+  candidatesTokenCount?: number;
+  thoughtsTokenCount?: number;
+  cachedContentTokenCount?: number;
 };
 
 export function llmCostUsd(model: string, usage: TokenUsage): number {
   const price = tokenPrice(model);
-  const total =
-    usage.input_tokens * price.inputPerMTok +
-    usage.output_tokens * price.outputPerMTok +
-    (usage.cache_creation_input_tokens ?? 0) * price.cacheWrite5mPerMTok +
-    (usage.cache_read_input_tokens ?? 0) * price.cacheReadPerMTok;
-  return total / 1_000_000;
+  const cached = usage.cachedContentTokenCount ?? 0;
+  const input = (usage.promptTokenCount ?? 0) - cached;
+  const output = (usage.candidatesTokenCount ?? 0) + (usage.thoughtsTokenCount ?? 0);
+  return (input * price.inputPerMTok + cached * price.cachedInputPerMTok + output * price.outputPerMTok) / 1_000_000;
 }

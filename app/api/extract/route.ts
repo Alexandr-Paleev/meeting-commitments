@@ -1,8 +1,8 @@
 // Step 2 of 2: the signed transcript in, the commitments list out.
 
-import Anthropic from "@anthropic-ai/sdk";
+import { ApiError } from "@google/genai";
 import { extract, ModelStopError } from "@/lib/extract";
-import { clientIp, takeRequest } from "@/lib/limits";
+import { clientIp, REGION_MESSAGE, regionBlocked, takeRequest } from "@/lib/limits";
 import { hasValidSignature } from "@/lib/sign";
 import { Transcript } from "@/lib/transcript";
 
@@ -12,6 +12,7 @@ const error = (status: number, message: string, headers?: HeadersInit) =>
   Response.json({ error: message }, { status, headers });
 
 export async function POST(request: Request) {
+  if (regionBlocked(request)) return error(451, REGION_MESSAGE);
   const allowance = takeRequest(clientIp(request));
   if (!allowance.ok) return error(429, allowance.message, { "Retry-After": String(allowance.retryAfterSec) });
 
@@ -30,7 +31,7 @@ export async function POST(request: Request) {
     return Response.json(await extract(transcript));
   } catch (e) {
     if (e instanceof ModelStopError) return error(502, e.message);
-    if (e instanceof Anthropic.RateLimitError) {
+    if (e instanceof ApiError && e.status === 429) {
       return error(429, "The model is busy right now. Please try again in a minute.", { "Retry-After": "60" });
     }
     console.error("extract failed", e);

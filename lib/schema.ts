@@ -1,4 +1,4 @@
-// The model's output format. It is sent to Claude as a JSON schema (structured output) and the
+// The model's output format. It is sent to Gemini as a JSON schema (structured output) and the
 // reply is validated with the same Zod schema.
 // Evidence is always a list of segment ids. Code turns ids into quotes, speakers and times,
 // so the model cannot invent a quote. Nullable values are whole objects, never bare strings,
@@ -6,8 +6,8 @@
 
 import { z } from "zod";
 
-// A new schema per field: one shared schema would be emitted once as a $ref, and the
-// per-field descriptions would be lost.
+// A new schema per field, so each field keeps its own description (a shared schema can be
+// emitted once as a $ref with one description).
 const evidence = (description = "Ids of the transcript segments that support this, for example [4, 5]") =>
   z.array(z.number()).min(1).describe(description);
 
@@ -77,3 +77,9 @@ export const Extraction = z.object({
 export type Extraction = z.infer<typeof Extraction>;
 export type Commitment = Extraction["commitments"][number];
 export type Clarification = Extraction["clarifications"][number];
+
+// What Gemini receives as responseJsonSchema. Every keyword Zod emits here is in Gemini's
+// supported list except "$schema", which is dropped.
+const generated: Record<string, unknown> = { ...z.toJSONSchema(Extraction) };
+delete generated.$schema;
+export const EXTRACTION_JSON_SCHEMA = generated;

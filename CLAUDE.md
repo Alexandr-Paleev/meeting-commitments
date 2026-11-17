@@ -65,15 +65,15 @@ hypothetical needs.
 - Next.js App Router, TypeScript strict, deployable to Vercel. No accounts, no database, no audio
   stored server side. Keys server side only.
 - Two routes called in sequence by the client: `/api/transcribe` (Deepgram, diarization, word
-  timestamps, our own re-split into sentence-sized segments) then `/api/extract` (Claude, structured
+  timestamps, our own re-split into sentence-sized segments) then `/api/extract` (Gemini, structured
   output validated with Zod). The transcript is shown before extraction starts.
 - The model sees numbered segments and returns evidence as segment ids only. Code resolves quotes
   and timestamps from ids, so quotes cannot be invented. Transcript text is untrusted data.
 - One file each: `lib/prompt.ts`, `lib/schema.ts`, `lib/verify.ts`, `lib/pricing.ts`.
-  Model ids and effort come from env.
+  The model id and the thinking level come from env.
 - `lib/verify.ts` runs deterministic checks after the model call. One retry with the violations
   described; anything still failing moves to Needs clarification. Retries are counted in metrics.
-- The refusal fallback and the transcript HMAC are each under about 30 lines, with a comment saying
+- The transcript HMAC and the region block are each under about 30 lines, with a comment saying
   why they exist.
 - Hard input limits, a best-effort per-IP rate limit and a daily cap from env (in memory, per
   instance, documented as best effort).
@@ -98,12 +98,9 @@ hypothetical needs.
 
 ## Decisions from 2026-11-17 (scope cut to finish on time)
 
-- No switch to another LLM provider to save API cost. The Gemini free tier was rejected: free-tier
-  content may be used to improve Google products, and its quota would be shared by the demo and the
-  eval. Costs are reported at list prices anyway.
-- Claude Opus 5.5 is used for development too; no separate cheaper dev model.
-- Stretch goals are dropped. The refusal fallback is deferred: added only if time remains,
-  otherwise listed as a known limit.
+- Stretch goals are dropped.
+- The morning plan to stay on Claude Opus 5.5 (and to defer its refusal fallback) was replaced the
+  same day by the provider switch below.
 - Phase 2 code is written while the user writes the expected files. No pipeline run on a sample
   before its expected file is committed.
 - Deepgram: diarization through `diarize_model=latest` (`diarize` is deprecated); words are read
@@ -112,3 +109,19 @@ hypothetical needs.
   fixture, smart_format rewrote "the first of March twenty twenty seven" as "03/01/2027" (not
   verbatim, and read as 3 January in Europe), and `numerals` split the year into "20 27". Numbers
   therefore stay in words; the checks accept ordinal dates and years said in words.
+
+## Decisions from 2026-11-17 (provider switch)
+
+- Extraction runs on the Gemini API free tier: `gemini-4-hydrogen` by default, thinking level
+  `high`, both from env. SDK `@google/genai` pinned to 2.32.0 (the 3.x line was 11 days old).
+  Reason: the user does not want to pay for API credits. A Claude subscription does not pay for
+  API keys, and the brief allows free credits as long as costs are reported at list price, so
+  `lib/pricing.ts` keeps the paid tier prices.
+- Free tier terms shape the product. Google may use the content to improve its products and human
+  reviewers may read it: the UI warns not to upload real meetings, and the notes say so. Apps on
+  the free tier may not be offered to users in the EEA, Switzerland or the UK: both routes refuse
+  them with status 451 (Vercel's `x-vercel-ip-country`) unless `GEMINI_PAID_TIER=true`.
+- The free quota is shared by the demo and the eval. `gemini-3.8-flash` is the fallback model if
+  the quota runs short.
+- No refusal fallback (it was a Claude feature). An answer that does not finish with STOP is an
+  error shown to the user.

@@ -1,26 +1,29 @@
-// The retry loop with the Anthropic SDK replaced by a fake. No network, no cost.
+// The retry loop with the Gemini client replaced by a fake. No network, no cost.
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { extract, ModelStopError } from "../lib/extract";
+import { SYSTEM_PROMPT } from "../lib/prompt";
 import type { Extraction } from "../lib/schema";
 import { transcript, validExtraction } from "./fixtures";
 
-// vi.mock is hoisted above the imports, so lib/extract.ts gets the fake client.
-const { create } = vi.hoisted(() => ({ create: vi.fn() }));
-vi.mock("@anthropic-ai/sdk", () => ({ default: class { messages = { create }; } }));
-
-const reply = (x: Extraction, stop_reason = "end_turn") => ({
-  content: [{ type: "text", text: JSON.stringify(x) }],
-  stop_reason,
-  stop_details: null,
-  usage: {
-    input_tokens: 1_000,
-    output_tokens: 500,
-    cache_creation_input_tokens: 0,
-    cache_read_input_tokens: 0,
-    output_tokens_details: { thinking_tokens: 200 },
+// vi.mock is hoisted above the imports, so lib/extract.ts gets the fake client. The rest of the
+// SDK (enums such as FinishReason) stays real.
+const { generateContent } = vi.hoisted(() => ({ generateContent: vi.fn() }));
+vi.mock("@google/genai", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@google/genai")>()),
+  GoogleGenAI: class {
+    models = { generateContent };
   },
-});
+}));
+
+const reply = (x: Extraction, finishReason = "STOP") => {
+  const text = JSON.stringify(x);
+  return {
+    text,
+    candidates: [{ content: { role: "model", parts: [{ text }] }, finishReason }],
+    usageMetadata: { promptTokenCount: 1_000, candidatesTokenCount: 300, thoughtsTokenCount: 200 },
+  };
+};
 
 function withBadOwner(): Extraction {
   const x = validExtraction();
@@ -28,26 +31,41 @@ function withBadOwner(): Extraction {
   return x;
 }
 
-beforeEach(() => create.mockReset());
+beforeEach(() => {
+  generateContent.mockReset();
+  vi.stubEnv("GEMINI_API_KEY", "test-key");
+});
+afterEach(() => vi.unstubAllEnvs());
 
 describe("extract", () => {
   it("makes one call when the checks pass", async () => {
-    create.mockResolvedValueOnce(reply(validExtraction()));
+    generateContent.mockResolvedValueOnce(reply(validExtraction()));
     const result = await extract(transcript);
-    expect(create).toHaveBeenCalledTimes(1);
+    expect(generateContent).toHaveBeenCalledTimes(1);
     expect(result.metrics).toMatchObject({ calls: 1, retries: 0, inputTokens: 1_000, outputTokens: 500, thinkingTokens: 200 });
-    // Opus 5.5 list prices: $4 per million input tokens, $20 per million output tokens.
-    expect(result.metrics.llmCostUsd).toBeCloseTo(0.004 + 0.01);
+    // gemini-4-hydrogen list prices: $1.50 per million input tokens, $7.50 per million output tokens.
+    expect(result.metrics.llmCostUsd).toBeCloseTo(0.0015 + 0.00375);
     expect(result.commitments).toHaveLength(2);
   });
 
-  it("retries once with the problems described and keeps the fixed answer", async () => {
-    create.mockResolvedValueOnce(reply(withBadOwner())).mockResolvedValueOnce(reply(validExtraction()));
+  it("sends the system prompt, the JSON schema and the thinking level", async () => {
+    generateContent.mockResolvedValueOnce(reply(validExtraction()));
+    await extract(transcript);
+    const { model, config } = generateContent.mock.calls[0][0];
+    expect(model).toBe("gemini-4-hydrogen");
+    expect(config).toMatchObject({ systemInstruction: SYSTEM_PROMPT, responseMimeType: "application/json" });
+    expect(config.thinkingConfig).toEqual({ thinkingLevel: "HIGH" });
+    expect(config.responseJsonSchema).toHaveProperty("properties.commitments");
+    expect(config.responseJsonSchema).not.toHaveProperty("$schema");
+  });
+
+  it("retries once with the previous answer and the problems described", async () => {
+    generateContent.mockResolvedValueOnce(reply(withBadOwner())).mockResolvedValueOnce(reply(validExtraction()));
     const result = await extract(transcript);
-    expect(create).toHaveBeenCalledTimes(2);
-    const retryMessages = create.mock.calls[1][0].messages;
-    expect(retryMessages.map((m: { role: string }) => m.role)).toEqual(["user", "assistant", "user"]);
-    expect(retryMessages[2].content).toContain('commitments[0]: owner "Dana"');
+    expect(generateContent).toHaveBeenCalledTimes(2);
+    const contents = generateContent.mock.calls[1][0].contents;
+    expect(contents.map((c: { role: string }) => c.role)).toEqual(["user", "model", "user"]);
+    expect(contents[2].parts[0].text).toContain('commitments[0]: owner "Dana"');
     expect(result.metrics).toMatchObject({ calls: 2, retries: 1 });
     expect(result.problems.first).toHaveLength(1);
     expect(result.problems.final).toEqual([]);
@@ -55,15 +73,17 @@ describe("extract", () => {
   });
 
   it("moves an item that still fails after the retry", async () => {
-    create.mockResolvedValueOnce(reply(withBadOwner())).mockResolvedValueOnce(reply(withBadOwner()));
+    generateContent.mockResolvedValueOnce(reply(withBadOwner())).mockResolvedValueOnce(reply(withBadOwner()));
     const result = await extract(transcript);
-    expect(create).toHaveBeenCalledTimes(2);
+    expect(generateContent).toHaveBeenCalledTimes(2);
     expect(result.moved).toBe(1);
     expect(result.commitments.map((c) => c.task)).toEqual(["Update the wiki"]);
   });
 
-  it("stops with a clear error when the model refuses", async () => {
-    create.mockResolvedValueOnce(reply(validExtraction(), "refusal"));
-    await expect(extract(transcript)).rejects.toBeInstanceOf(ModelStopError);
+  it("stops with a clear error when the model does not finish its answer", async () => {
+    generateContent.mockResolvedValueOnce(reply(validExtraction(), "MAX_TOKENS"));
+    const error = await extract(transcript).catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(ModelStopError);
+    expect((error as Error).message).toContain("MAX_TOKENS");
   });
 });

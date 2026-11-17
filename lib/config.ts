@@ -9,25 +9,27 @@ export const AUDIO_LIMITS = {
   toleranceSeconds: 0.5,
 } as const;
 
-export type Effort = "low" | "medium" | "high" | "xhigh" | "max";
-const EFFORTS: Effort[] = ["low", "medium", "high", "xhigh", "max"];
+// Gemini thinking levels (not every model supports every level; the API rejects a wrong one).
+export type ThinkingLevel = "minimal" | "low" | "medium" | "high";
+const THINKING_LEVELS: ThinkingLevel[] = ["minimal", "low", "medium", "high"];
 
 export function serverConfig() {
-  const effort = process.env.EXTRACT_EFFORT || "high";
-  if (!EFFORTS.includes(effort as Effort)) {
-    throw new Error(`EXTRACT_EFFORT must be one of: ${EFFORTS.join(", ")}`);
+  const thinkingLevel = process.env.EXTRACT_THINKING_LEVEL || "high";
+  if (!THINKING_LEVELS.includes(thinkingLevel as ThinkingLevel)) {
+    throw new Error(`EXTRACT_THINKING_LEVEL must be one of: ${THINKING_LEVELS.join(", ")}`);
   }
   return {
-    extractModel: process.env.EXTRACT_MODEL || "claude-opus-5-5",
-    extractEffort: effort as Effort,
+    extractModel: process.env.EXTRACT_MODEL || "gemini-4-hydrogen",
+    extractThinkingLevel: thinkingLevel as ThinkingLevel,
+    // true when GEMINI_API_KEY is on Gemini's paid tier; lifts the region block in lib/limits.ts
+    geminiPaidTier: process.env.GEMINI_PAID_TIER === "true",
     sttModel: process.env.STT_MODEL || "nova-3",
     rateLimitPerIpPerHour: positiveInt("RATE_LIMIT_PER_IP_PER_HOUR", 20),
     dailyRequestCap: positiveInt("DAILY_REQUEST_CAP", 100),
   };
 }
 
-// The Anthropic SDK reads ANTHROPIC_API_KEY itself; these two are read by our code.
-export function secret(name: "DEEPGRAM_API_KEY" | "TRANSCRIPT_SIGNING_SECRET"): string {
+export function secret(name: "DEEPGRAM_API_KEY" | "GEMINI_API_KEY" | "TRANSCRIPT_SIGNING_SECRET"): string {
   const value = process.env[name];
   if (!value) throw new Error(`${name} is not set (see .env.example)`);
   return value;
