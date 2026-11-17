@@ -65,6 +65,15 @@ Fields that do not apply to a section stay `null` or `[]`, as in the template.
 
 ### How the eval uses this
 
+Run it with `npm run eval` (3 runs of every sample; `npm run eval -- --runs 1 A C` for fewer). It
+calls the same functions as the API routes, needs both keys in `.env.local`, and writes
+`eval/report.md` and `eval/runs.json` (every output). `npm run eval -- --saved` checks the saved
+outputs again without any API call. The checks are in `scripts/eval-checks.ts`:
+
+- Decline samples: the decline reason matches.
+- Speakers: the output names are the expected names, and each label is named after the person
+  who says most of what that label carries (by the manifest times). The lines under `speakers`
+  are for reference only, since a name can also come from how the other speaker addresses them.
 - Inclusion: each expected item is found by section and keywords, then owner, deadline, flags,
   history and kind are compared.
 - Exclusion: nothing from `mustNotBeAgreed` appears in Final commitments, and no Final commitment
@@ -75,4 +84,6 @@ Fields that do not apply to a section stay `null` or `[]`, as in the template.
   said it.
 - B vs A: items whose id, section, owner, deadline, flags or kind differ between `A.expected.json`
   and `B.expected.json` are the expected difference. The actual outputs must differ in exactly those
-  items.
+  items. Run 1 of A is compared with run 1 of B, and so on.
+- A run passes only when every check passes. A check that depends on a failed one (the owner of an
+  item that was not found) is reported as "skip" and counts as not passed.
