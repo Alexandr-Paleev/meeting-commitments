@@ -30,6 +30,23 @@ describe("buildTranscript", () => {
     expect(t.durationSec).toBe(20);
   });
 
+  it("continues a sentence across utterances of the same speaker, never across speakers", () => {
+    const t = buildTranscript(
+      response(20, [
+        { speaker: 1, words: [word("Today", 0)] },
+        { speaker: 1, words: [word("is", 1), word("Monday,", 1.5)] },
+        { speaker: 1, words: [word("so", 3), word("soon.", 3.5)] },
+        { speaker: 0, words: [word("Okay", 6)] },
+        { speaker: 1, words: [word("Right.", 8)] },
+      ]),
+    );
+    expect(t.segments).toEqual([
+      { id: 1, speaker: 1, start: 0, end: 4, text: "Today is Monday, so soon." },
+      { id: 2, speaker: 0, start: 6, end: 6.5, text: "Okay" },
+      { id: 3, speaker: 1, start: 8, end: 8.5, text: "Right." },
+    ]);
+  });
+
   it("uses the plain word when there is no punctuated form", () => {
     const t = buildTranscript(response(5, [{ speaker: 0, words: [{ word: "okay", start: 0, end: 0.4 }] }]));
     expect(t.segments[0].text).toBe("okay");

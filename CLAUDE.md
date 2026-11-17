@@ -108,3 +108,7 @@ hypothetical needs.
   before its expected file is committed.
 - Deepgram: diarization through `diarize_model=latest` (`diarize` is deprecated); words are read
   from `utterances`, the documented place for `punctuated_word`.
+- Deepgram formatting: `punctuate=true`, not `smart_format`. On a clip voiced from the unit-test
+  fixture, smart_format rewrote "the first of March twenty twenty seven" as "03/01/2027" (not
+  verbatim, and read as 3 January in Europe), and `numerals` split the year into "20 27". Numbers
+  therefore stay in words; the checks accept ordinal dates and years said in words.

@@ -85,3 +85,27 @@ wrong and how it was caught.
   `Uint8Array` but returns `Int8Array` at runtime, so typecheck passed and the first real run
   crashed after the TTS calls. Fixed by wrapping each chunk as a Buffer over the same bytes. The
   clips were already cached, so the rerun did not pay for them again.
+
+## 2026-11-17 - First live speech to text call; formatting changed
+
+- Done: a smoke test of `transcribeAudio` against the real Deepgram API, on a clip voiced from the
+  unit-test fixture (not a sample). The parameters were accepted, the response matched our schema,
+  every segment had the right speaker, and 32 s of audio took 2.5 to 3.7 s and cost $0.0022.
+  Segment times were within 0.35 s of the true line times.
+- Model output wrong, caught: the Phase 2 code used `smart_format`, chosen without checking what it
+  does to dates. The first live call returned "by the 03/03/2027" for "by the 3rd of March 2027"
+  and "the 03/01/2027" for "the first of March 2027": quotes must be verbatim, and "03/01" reads as
+  3 January in Europe. Docs checked (smart format, punctuation, numerals, utterances): smart_format
+  always formats dates. Compared on the same clip: `punctuate` alone keeps "the third of March
+  twenty twenty seven"; `punctuate` plus `numerals` gives "the 3rd of March 20 27" (year split).
+  Switched to `punctuate`.
+- Follow-up changes: `isCalendarDate` accepts ordinal words ("the third of March"); the resolved
+  year check accepts the year said in words ("twenty twenty seven"); a sentence that Deepgram
+  splits across two utterances of the same speaker is joined into one segment (the first call split
+  "Today" from "is the 03/01/2027."). 43 unit tests pass; the real code path on the clip now gives
+  "Today is the first of March twenty twenty seven, so that's soon." as one segment.
+- Seen, not changed: on a second TTS rendition of the same text, speech to text heard "We can also
+  redo the logo" instead of "We could". Transcription errors happen and the model can only work with
+  what the transcript says. Goes into the known limits.
+- Sample scripts were not changed and no sample was transcribed: their deadlines are already words
+  ("by Wednesday", "by Friday"), so the switch does not change how the expected files are written.

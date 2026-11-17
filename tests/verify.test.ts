@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyChecks, containsPhrase, isCalendarDate, verify } from "../lib/verify";
+import { applyChecks, containsPhrase, isCalendarDate, verify, yearForms } from "../lib/verify";
 import { transcript, validExtraction } from "./fixtures";
 
 const messages = (x: ReturnType<typeof validExtraction>) => verify(x, transcript).map((p) => p.message);
@@ -67,6 +67,16 @@ describe("verify", () => {
     const x = validExtraction();
     x.commitments[1].deadline!.resolvedDate = null;
     expect(verify(x, transcript)).toEqual([]);
+  });
+
+  it("accepts a calendar date and a year said in words, as the transcript keeps them", () => {
+    const t = structuredClone(transcript);
+    t.segments[8].text = "Someone has to update the wiki by the third of March twenty twenty seven.";
+    const x = validExtraction();
+    x.commitments[1].deadline!.wording = "by the third of March twenty twenty seven";
+    expect(verify(x, t)).toEqual([]);
+    x.commitments[1].deadline!.resolvedDate = null; // still a calendar date, so no date context is needed
+    expect(verify(x, t)).toEqual([]);
   });
 
   it("flags a resolved year that nobody said", () => {
@@ -141,7 +151,14 @@ describe("helpers", () => {
   it("tells calendar dates from relative wording", () => {
     expect(isCalendarDate("by November 20th")).toBe(true);
     expect(isCalendarDate("11/20")).toBe(true);
+    expect(isCalendarDate("by the third of March")).toBe(true);
     expect(isCalendarDate("by Friday")).toBe(false);
     expect(isCalendarDate("end of next week")).toBe(false);
+  });
+
+  it("lists the ways a year can be said", () => {
+    expect(yearForms(2027)).toEqual(["2027", "twenty twenty seven", "two thousand twenty seven", "two thousand and twenty seven"]);
+    expect(yearForms(2005)).toContain("twenty oh five");
+    expect(yearForms(1999)).toEqual(["1999", "nineteen ninety nine"]);
   });
 });

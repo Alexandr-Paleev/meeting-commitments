@@ -24,9 +24,38 @@ export function containsPhrase(text: string, phrase: string): boolean {
 
 const MONTH = /\b(jan(uary)?|feb(ruary)?|mar(ch)?|apr(il)?|may|june?|july?|aug(ust)?|sept?(ember)?|oct(ober)?|nov(ember)?|dec(ember)?)\b/i;
 
-// "November 20th" or "11/20" names a calendar date; "Friday" or "next week" does not.
+const ORDINAL_WORD =
+  /\b(first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth|thirteenth|fourteenth|fifteenth|sixteenth|seventeenth|eighteenth|nineteenth|twentieth|thirtieth)\b/i;
+
+// "November 20th", "the third of March" or "11/20" names a calendar date; "Friday" or "next week" does not.
 export function isCalendarDate(wording: string): boolean {
-  return (MONTH.test(wording) && /\d/.test(wording)) || /\b\d{1,4}[/.-]\d{1,2}\b/.test(wording);
+  return (MONTH.test(wording) && (/\d/.test(wording) || ORDINAL_WORD.test(wording))) || /\b\d{1,4}[/.-]\d{1,2}\b/.test(wording);
+}
+
+const ONES = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+const TEENS = ["ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+const TENS = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+
+// 1 to 99 in words: 7 -> "seven", 27 -> "twenty seven".
+function upTo99(n: number): string {
+  if (n < 10) return ONES[n];
+  if (n < 20) return TEENS[n - 10];
+  return `${TENS[Math.floor(n / 10)]} ${ONES[n % 10]}`.trim();
+}
+
+// The ways a year can appear in the transcript, which keeps numbers as spoken:
+// 2027 -> "2027", "twenty twenty seven", "two thousand twenty seven", "two thousand and twenty seven".
+export function yearForms(year: number): string[] {
+  const century = Math.floor(year / 100);
+  const rest = year % 100;
+  const forms = [String(year)];
+  if (rest >= 10) forms.push(`${upTo99(century)} ${upTo99(rest)}`);
+  else if (rest > 0) forms.push(`${upTo99(century)} oh ${ONES[rest]}`);
+  if (year >= 2000 && year < 2100) {
+    forms.push(rest === 0 ? "two thousand" : `two thousand ${upTo99(rest)}`);
+    if (rest > 0) forms.push(`two thousand and ${upTo99(rest)}`);
+  }
+  return forms;
 }
 
 export function verify(x: Extraction, t: Transcript): Problem[] {
@@ -77,7 +106,7 @@ export function verify(x: Extraction, t: Transcript): Problem[] {
         const m = /^(?:(\d{4})-)?(\d{2})-(\d{2})$/.exec(d.resolvedDate.date);
         if (!m || Number(m[2]) < 1 || Number(m[2]) > 12 || Number(m[3]) < 1 || Number(m[3]) > 31) {
           add(`resolved date "${d.resolvedDate.date}" must be a valid MM-DD or YYYY-MM-DD`);
-        } else if (m[1] && !context.some((seg) => seg.text.includes(m[1]))) {
+        } else if (m[1] && !context.some((seg) => yearForms(Number(m[1])).some((form) => containsPhrase(seg.text, form)))) {
           add(`resolved date has the year ${m[1]}, but no cited segment says that year`);
         }
         if (d.needsDateContext) add("needsDateContext must be false when the date is resolved");

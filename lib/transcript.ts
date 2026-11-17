@@ -64,7 +64,10 @@ export async function transcribeAudio(audio: ArrayBuffer, contentType: string): 
   const params = new URLSearchParams({
     model: sttModel,
     language: "en",
-    smart_format: "true", // includes punctuation, which drives our sentence split
+    // Punctuation drives our sentence split. Not smart_format: it rewrites spoken dates ("the first
+    // of March twenty twenty seven" becomes "03/01/2027"), so quotes would not be verbatim.
+    // Numbers therefore stay in words.
+    punctuate: "true",
     diarize_model: "latest", // speaker labels; the older diarize=true is deprecated
     utterances: "true", // utterance words carry punctuated_word and the speaker
   });
@@ -91,19 +94,28 @@ const SENTENCE_END = /[.?!]["')\]]*$/;
 
 export function buildTranscript(response: DeepgramResponse): Transcript {
   const segments: Segment[] = [];
+  let words: string[] = [];
+  let speaker = 0;
+  let start = 0;
+  let end = 0;
+  const flush = () => {
+    if (words.length > 0) segments.push({ id: segments.length + 1, speaker, start, end, text: words.join(" ") });
+    words = [];
+  };
   for (const utterance of response.results.utterances ?? []) {
-    let words: string[] = [];
-    let start = 0;
-    utterance.words.forEach((word, i) => {
+    // A new speaker always starts a new segment. The same speaker's next utterance continues an
+    // unfinished sentence: Deepgram can end an utterance in the middle of one.
+    if (utterance.speaker !== speaker) flush();
+    speaker = utterance.speaker;
+    for (const word of utterance.words) {
       if (words.length === 0) start = word.start;
       const text = word.punctuated_word ?? word.word;
       words.push(text);
-      if (SENTENCE_END.test(text) || i === utterance.words.length - 1) {
-        segments.push({ id: segments.length + 1, speaker: utterance.speaker, start, end: word.end, text: words.join(" ") });
-        words = [];
-      }
-    });
+      end = word.end;
+      if (SENTENCE_END.test(text)) flush();
+    }
   }
+  flush();
   const speakers = [...new Set(segments.map((s) => s.speaker))].sort((a, b) => a - b);
   return { durationSec: response.metadata.duration, speakers, segments };
 }
