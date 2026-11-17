@@ -132,3 +132,28 @@ wrong and how it was caught.
   tier. 45 unit tests with a fake client; lint and typecheck clean. `npm audit --omit=dev`: 0
   findings (7 moderate ones are in dev-only lint tooling).
 - Not done yet: no live Gemini call, waiting for the key.
+
+## 2026-11-17 - First live Gemini calls; default model chosen by latency
+
+- Key check: `GEMINI_API_KEY` set by the user in a new project `meeting-commitments` (no billing,
+  so free tier). `.env.local` is ignored by git, was never committed, and the key is read only on
+  the server (no `NEXT_PUBLIC_` variables).
+- Done: live extraction on the unit-test fixture (10 segments, not a sample) with five model and
+  thinking level combinations. Every answer passed the checks with no retry.
+  - gemini-4-hydrogen, high: 133.5 s, 4,238 output tokens (3,985 thinking), $0.036 at list price
+  - gemini-4-hydrogen, low: 88.5 s, 1,096 output tokens, $0.013
+  - gemini-3.8-flash, medium: 294.0 s, 3,407 output tokens, $0.014
+  - gemini-3.5-flash-lite, low: 2.7 s, 349 output tokens (no thinking), $0.001
+  - gemini-3.5-flash-lite, high: 14.8 s, 3,121 output tokens (2,939 thinking), $0.008
+- Checked in the SDK source: it retries only when `retryOptions` is passed, and we pass none, so
+  the times are the service's own latency on the free tier, not hidden retries.
+- Quality on the fixture: all five got the release notes task (owner Lee, deadline Thursday,
+  earlier Friday) and the rejected logo. The fixture's "Someone has to update the wiki" line is
+  ambiguous: Hydrogen listed it as a task with no owner and resolved both dates from "Today is the
+  first of March 2027"; the Flash models listed it as an unanswered proposal or an open question.
+  The real test of this case is sample A, where the task is agreed explicitly.
+- Decision: default `gemini-3.5-flash-lite` with thinking `high`. A real recording is 3 to 4 times
+  longer than the fixture and a retry doubles the time, so the larger models would hit Vercel's
+  300 s limit. Proposed to the user; one env variable switches back.
+- Tooling: one measurement command was blocked by a built-in safety check that could not parse it
+  (there was no removal in it). The same measurement ran as a script file instead.

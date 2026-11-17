@@ -19,7 +19,8 @@ export function serverConfig() {
     throw new Error(`EXTRACT_THINKING_LEVEL must be one of: ${THINKING_LEVELS.join(", ")}`);
   }
   return {
-    extractModel: process.env.EXTRACT_MODEL || "gemini-4-hydrogen",
+    // The fastest free tier model; larger ones took 88 to 294 s on a 10-line test (WORKLOG).
+    extractModel: process.env.EXTRACT_MODEL || "gemini-3.5-flash-lite",
     extractThinkingLevel: thinkingLevel as ThinkingLevel,
     // true when GEMINI_API_KEY is on Gemini's paid tier; lifts the region block in lib/limits.ts
     geminiPaidTier: process.env.GEMINI_PAID_TIER === "true",

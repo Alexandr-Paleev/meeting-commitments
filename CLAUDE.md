@@ -112,7 +112,7 @@ hypothetical needs.
 
 ## Decisions from 2026-11-17 (provider switch)
 
-- Extraction runs on the Gemini API free tier: `gemini-4-hydrogen` by default, thinking level
+- Extraction runs on the Gemini API free tier: `gemini-3.5-flash-lite` by default, thinking level
   `high`, both from env. SDK `@google/genai` pinned to 2.32.0 (the 3.x line was 11 days old).
   Reason: the user does not want to pay for API credits. A Claude subscription does not pay for
   API keys, and the brief allows free credits as long as costs are reported at list price, so
@@ -121,7 +121,11 @@ hypothetical needs.
   reviewers may read it: the UI warns not to upload real meetings, and the notes say so. Apps on
   the free tier may not be offered to users in the EEA, Switzerland or the UK: both routes refuse
   them with status 451 (Vercel's `x-vercel-ip-country`) unless `GEMINI_PAID_TIER=true`.
-- The free quota is shared by the demo and the eval. `gemini-3.8-flash` is the fallback model if
-  the quota runs short.
+- The default model was chosen by latency. On the 10-segment unit-test fixture, free tier:
+  gemini-4-hydrogen 133 s (high) and 88 s (low), gemini-3.8-flash 294 s (medium),
+  gemini-3.5-flash-lite 2.7 s (low) and 15 s (high). A real recording is 3 to 4 times longer and a
+  retry doubles the time, so the larger models would hit Vercel's 300 s limit. Whether
+  flash-lite's quality is enough is decided by the eval, reported honestly either way.
+- The free quota is shared by the demo and the eval.
 - No refusal fallback (it was a Claude feature). An answer that does not finish with STOP is an
   error shown to the user.

@@ -43,8 +43,8 @@ describe("extract", () => {
     const result = await extract(transcript);
     expect(generateContent).toHaveBeenCalledTimes(1);
     expect(result.metrics).toMatchObject({ calls: 1, retries: 0, inputTokens: 1_000, outputTokens: 500, thinkingTokens: 200 });
-    // gemini-4-hydrogen list prices: $1.50 per million input tokens, $7.50 per million output tokens.
-    expect(result.metrics.llmCostUsd).toBeCloseTo(0.0015 + 0.00375);
+    // gemini-3.5-flash-lite list prices: $0.30 per million input tokens, $2.50 per million output tokens.
+    expect(result.metrics.llmCostUsd).toBeCloseTo(0.0003 + 0.00125);
     expect(result.commitments).toHaveLength(2);
   });
 
@@ -52,7 +52,7 @@ describe("extract", () => {
     generateContent.mockResolvedValueOnce(reply(validExtraction()));
     await extract(transcript);
     const { model, config } = generateContent.mock.calls[0][0];
-    expect(model).toBe("gemini-4-hydrogen");
+    expect(model).toBe("gemini-3.5-flash-lite");
     expect(config).toMatchObject({ systemInstruction: SYSTEM_PROMPT, responseMimeType: "application/json" });
     expect(config.thinkingConfig).toEqual({ thinkingLevel: "HIGH" });
     expect(config.responseJsonSchema).toHaveProperty("properties.commitments");

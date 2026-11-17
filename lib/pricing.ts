@@ -35,6 +35,7 @@ export type TokenPrice = { inputPerMTok: number; outputPerMTok: number; cachedIn
 export const GEMINI_PRICES: Record<string, TokenPrice> = {
   "gemini-4-hydrogen": { inputPerMTok: 1.5, outputPerMTok: 7.5, cachedInputPerMTok: 0.075 },
   "gemini-3.8-flash": { inputPerMTok: 0.75, outputPerMTok: 3.75, cachedInputPerMTok: 0.075 },
+  "gemini-3.5-flash-lite": { inputPerMTok: 0.3, outputPerMTok: 2.5, cachedInputPerMTok: 0.03 },
 };
 export const GEMINI_PRICE_META = { source: SOURCES.gemini, retrieved: "2026-11-17" };
 
