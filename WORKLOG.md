@@ -43,3 +43,27 @@ wrong and how it was caught.
   writes the expected files.
 - Went wrong: the sample audio is not generated yet because `.env.local` still has placeholder
   keys.
+
+## 2026-11-17 - Phase 2: pipeline and unit tests (code from 06:16)
+
+- Done: `/api/transcribe` (Deepgram Nova-3 with `diarize_model=latest`, `smart_format` and
+  `utterances`; our own split into sentence segments; declines for too long, no speech and not
+  two speakers; HMAC signature) and `/api/extract` (Claude Opus 5.5, effort from env, structured
+  output from the Zod schema, checks in `lib/verify.ts`, one retry with the problems described,
+  items that still fail moved to Needs clarification). Per-IP and daily limits, cost functions,
+  40 unit tests with a fake SDK. No live API call yet and no run on the samples: the expected
+  files are not committed yet.
+- Docs checked: Deepgram pre-recorded API reference and guides (`diarize` is deprecated in favor
+  of `diarize_model`; `punctuated_word` is documented only under `utterances`; raw audio is sent
+  with its own Content-Type), Claude structured outputs (array `minItems` only 0 or 1, no numeric
+  or string constraints; type arrays such as `["string","null"]` are not confirmed, so every
+  nullable value in the schema is a whole object), Vercel max duration (300 s default and Hobby
+  maximum with fluid compute) and request headers (Vercel overwrites `x-forwarded-for` with the
+  client IP).
+- Model output wrong, caught: the first `lib/schema.ts` reused one Zod evidence schema and gave
+  it a different `.describe()` per field. The generated JSON schema emitted it once as a `$ref`
+  with only the generic description, so the model would never see what to cite for speaker
+  names, commitments and date context. Caught by printing the schema the SDK sends; fixed with a
+  new schema per field.
+- Model output wrong, caught: a test helper's type rejected a word without `punctuated_word`.
+  Vitest passed because it does not typecheck; `npm run typecheck` caught it.
