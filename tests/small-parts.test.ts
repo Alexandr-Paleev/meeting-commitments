@@ -2,7 +2,7 @@
 
 import { describe, expect, it, vi } from "vitest";
 import { regionBlocked } from "../lib/limits";
-import { llmCostUsd, sttCostUsd, tokenPrice } from "../lib/pricing";
+import { hostingCostUsd, llmCostUsd, sttCostUsd, tokenPrice } from "../lib/pricing";
 import { problemsMessage, transcriptMessage } from "../lib/prompt";
 import { hasValidSignature, signTranscript } from "../lib/sign";
 import { transcript } from "./fixtures";
@@ -35,6 +35,13 @@ describe("pricing", () => {
 
   it("prices speech to text per audio minute", () => {
     expect(sttCostUsd("nova-3", 60)).toBeCloseTo(0.0043);
+  });
+
+  it("estimates hosting per recording: memory while waiting, CPU only as an upper bound", () => {
+    const h = hostingCostUsd(3600);
+    expect(h.memory).toBeCloseTo(0.0212); // 2 GB for one hour
+    expect(h.cpuAtMost).toBeCloseTo(0.128);
+    expect(h.invocations).toBeCloseTo(0.0000012); // two requests
   });
 
   it("fails loudly for a model without a price", () => {

@@ -40,15 +40,31 @@ export const GEMINI_PRICES: Record<string, TokenPrice> = {
 export const GEMINI_PRICE_META = { source: SOURCES.gemini, retrieved: "2026-11-17" };
 
 // Hosting, reported separately from variable cost. Vercel Pro list rates (iad1, the default region).
-// The $20 per seat per month plan fee is a fixed cost and not part of the per-operation number.
+// The plan fee is a fixed cost and not part of the per-operation number. memoryGb is the default
+// function size on Pro with fluid compute (2 GB, 1 vCPU), read on 2026-11-17 at
+// https://vercel.com/docs/functions/configuring-functions/memory
 export const HOSTING_PRICE = {
   plan: "Vercel Pro",
+  planUsdPerSeatMonth: 20,
+  memoryGb: 2,
   activeCpuUsdPerHour: 0.128,
   memoryUsdPerGbHour: 0.0106,
   invocationsUsdPerMillion: 0.6,
   source: SOURCES.vercel,
   retrieved: RETRIEVED,
 };
+
+// Hosting for one recording: two requests that take requestSeconds together. Memory is billed for
+// the whole request, waiting included. Active CPU is billed only while code runs, and these routes
+// mostly wait on Deepgram and Gemini, so cpuAtMost (the whole request time as CPU) is an upper bound.
+export function hostingCostUsd(requestSeconds: number) {
+  const hours = requestSeconds / 3600;
+  return {
+    memory: HOSTING_PRICE.memoryGb * hours * HOSTING_PRICE.memoryUsdPerGbHour,
+    invocations: (2 * HOSTING_PRICE.invocationsUsdPerMillion) / 1_000_000,
+    cpuAtMost: hours * HOSTING_PRICE.activeCpuUsdPerHour,
+  };
+}
 
 export function ttsCostUsd(characters: number): number {
   return (characters / 1000) * TTS_PRICE.usdPer1kCharacters;
