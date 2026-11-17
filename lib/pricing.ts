@@ -28,7 +28,8 @@ export const TTS_PRICE = {
 
 // Claude, USD per million tokens. Thinking tokens are billed as output tokens.
 // Haiku 5.5 rates are the tier for prompts up to 100k tokens (our prompts are far smaller).
-// claude-opus-5 and claude-opus-4-8 are listed because they can serve a request as refusal fallbacks.
+// claude-opus-5 and claude-opus-4-8 can serve a request only if the refusal fallback is enabled
+// (deferred, see CLAUDE.md decisions from 2026-11-17).
 export type TokenPrice = {
   inputPerMTok: number;
   outputPerMTok: number;
@@ -58,4 +59,34 @@ export const HOSTING_PRICE = {
 
 export function ttsCostUsd(characters: number): number {
   return (characters / 1000) * TTS_PRICE.usdPer1kCharacters;
+}
+
+// Deepgram bills pre-recorded audio by its duration.
+export function sttCostUsd(model: string, audioSeconds: number): number {
+  if (model !== STT_PRICE.model) throw new Error(`No price for STT model "${model}" in lib/pricing.ts`);
+  return (audioSeconds / 60) * STT_PRICE.usdPerMinute;
+}
+
+export function tokenPrice(model: string): TokenPrice {
+  const price = CLAUDE_PRICES[model];
+  if (!price) throw new Error(`No price for model "${model}" in lib/pricing.ts`);
+  return price;
+}
+
+// The token counts as reported in the API response's usage field.
+export type TokenUsage = {
+  input_tokens: number;
+  output_tokens: number; // includes thinking tokens
+  cache_creation_input_tokens?: number | null;
+  cache_read_input_tokens?: number | null;
+};
+
+export function llmCostUsd(model: string, usage: TokenUsage): number {
+  const price = tokenPrice(model);
+  const total =
+    usage.input_tokens * price.inputPerMTok +
+    usage.output_tokens * price.outputPerMTok +
+    (usage.cache_creation_input_tokens ?? 0) * price.cacheWrite5mPerMTok +
+    (usage.cache_read_input_tokens ?? 0) * price.cacheReadPerMTok;
+  return total / 1_000_000;
 }
