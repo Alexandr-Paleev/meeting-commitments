@@ -175,3 +175,28 @@ wrong and how it was caught.
   Monday, March 3rd" (no year said); C training room has an owner and no deadline; C live demo is a
   clarification; C lunch is "rejected" ("Let's skip that for now"); C has two open questions
   (headcount, inviting their IT team); D, E, F are declines.
+
+## 2026-11-17 - First runs of the real pipeline on the samples; speaker rule extended
+
+- After the expected files were committed (ac29713), ran each sample once through the same lib
+  functions the routes use (a scratch script, not committed).
+- First runs: A and B match their expected files. D, E and F decline as expected
+  (speakers_not_identified, no_speech, too_long). C declined with speakers_not_identified.
+- C, what went wrong: Deepgram split Kevin's line "Hi Laura. I'm Kevin, I'm on the sales
+  engineering team." across both labels and gave "I'm Kevin." to Laura's label. Kevin's label never
+  says his name, so under rule (a) the model's decline was correct. An input error that the rule
+  could not absorb, not a model error. Other label errors at turn changes were seen in A, on
+  segments that nobody cited.
+- Fix, with the user's OK (changes rule (a)): a speaker is also identified when the other speaker
+  addresses them by name, with the name opening the sentence before a comma or closing it after a
+  comma. `addresses` in lib/verify.ts checks the position, and an address never counts as the
+  speaker's own name. The prompt and the schema descriptions say the same, with a neutral example
+  name that is not in any sample. D, with no names at all, still declines.
+- C after the fix: S0 Laura (segments 2 and 4), S1 Kevin (21 "Kevin, could you run it?" and 48
+  "Thanks, Kevin."). Agenda (Laura, by Friday, resolved to 03-07 from "today is Monday, March
+  third"), training room (Kevin), lunch rejected and both open questions match. The live demo came
+  back as a deferred proposal where the expected file has Needs clarification. Left for the eval.
+- A second run of A differed from the first: the pricing page task (agreed, no owner) came back
+  only as an open question about its owner. Same input, same prompt for that item, so this is run
+  to run variance. The eval will run each sample more than once.
+

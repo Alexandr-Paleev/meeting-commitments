@@ -89,7 +89,7 @@ hypothetical needs.
 - Limits: audio at most 4,000,000 bytes (raw request body under Vercel's 4.5 MB limit) and
   180 s (plus 0.5 s tolerance), checked in the browser and again on the server.
 - Stricter verification on top of the base checks: (a) speaker mapping evidence is spoken by that
-  label and contains the name, names differ; (b) owner evidence includes a segment spoken by the
+  label and contains the name, names differ (extended on 2026-11-17, see below); (b) owner evidence includes a segment spoken by the
   owner or naming the owner; (c) relative deadline wording without a resolved date must have
   needsDateContext = true.
 - Samples: A (all required cases), B (A with exactly one agreement changed), C (key agreement stays
@@ -132,3 +132,13 @@ hypothetical needs.
 - The free quota is shared by the demo and the eval.
 - No refusal fallback (it was a Claude feature). An answer that does not finish with STOP is an
   error shown to the user.
+
+## Decisions from 2026-11-17 (first sample runs)
+
+- Speaker names, changing rule (a) with the user's OK: a name is also confirmed when the other
+  speaker addresses that speaker by it, with the name opening the sentence before a comma or
+  closing it after a comma ("Anna, can you...?", "Thanks, Anna."). An address never counts as the
+  speaker's own name. Reason: on sample C, Deepgram gave the short "I'm Kevin." to the other label,
+  so Kevin's label never said his name.
+- The same input can give different answers from run to run (seen on A), so the eval runs each
+  sample more than once and reports pass rates.

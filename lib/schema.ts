@@ -22,8 +22,8 @@ export const Extraction = z.object({
   speakers: z.array(
     z.object({
       label: z.number().describe("Speaker label from the transcript: 0 for S0, 1 for S1"),
-      name: z.string().describe("The name this speaker gives for themselves"),
-      evidence: evidence("Segments spoken by this speaker in which they say their own name"),
+      name: z.string().describe("This speaker's name, said by them or used by the other speaker to address them"),
+      evidence: evidence("Segments where this speaker says their own name, or where the other speaker addresses them by name"),
     }),
   ),
   commitments: z.array(

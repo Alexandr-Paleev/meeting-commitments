@@ -27,6 +27,16 @@ const MONTH = /\b(jan(uary)?|feb(ruary)?|mar(ch)?|apr(il)?|may|june?|july?|aug(u
 const ORDINAL_WORD =
   /\b(first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth|thirteenth|fourteenth|fifteenth|sixteenth|seventeenth|eighteenth|nineteenth|twentieth|thirtieth)\b/i;
 
+// Direct address: the name opens the sentence before a comma ("Anna, can you take this?") or
+// closes it after a comma ("Thanks, Anna."). A name in passing ("ask Anna") is not an address.
+// Position only: it cannot tell "Thanks, Anna." from "my manager, Anna.", so the prompt asks for
+// direct address and this check rules out the rest.
+export function addresses(text: string, name: string): boolean {
+  const n = name.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const t = text.trim();
+  return n.length > 0 && (new RegExp(`^${n},`, "i").test(t) || new RegExp(`,\\s*${n}[.?!]*$`, "i").test(t));
+}
+
 // "November 20th", "the third of March" or "11/20" names a calendar date; "Friday" or "next week" does not.
 export function isCalendarDate(wording: string): boolean {
   return (MONTH.test(wording) && (/\d/.test(wording) || ORDINAL_WORD.test(wording))) || /\b\d{1,4}[/.-]\d{1,2}\b/.test(wording);
@@ -71,7 +81,9 @@ export function verify(x: Extraction, t: Transcript): Problem[] {
     return ids.flatMap((id) => byId.get(id) ?? []);
   }
 
-  // (a) Speakers: both labels once, two different names, each said by its own speaker.
+  // (a) Speakers: both labels once, two different names. A name is confirmed when its speaker says
+  // it ("I'm Anna"), or when the other speaker addresses them by it ("Thanks, Anna."). The second
+  // way is there because diarization can give a short "I'm Anna." to the wrong label.
   const labels = x.speakers.map((s) => s.label).sort((a, b) => a - b);
   if (labels.join() !== t.speakers.join()) {
     problems.push({ section: "speakers", index: -1, message: `map exactly the labels ${t.speakers.map((l) => `S${l}`).join(" and ")}, each once` });
@@ -81,9 +93,16 @@ export function verify(x: Extraction, t: Transcript): Problem[] {
     problems.push({ section: "speakers", index: -1, message: "the two speakers need two different names" });
   }
   x.speakers.forEach((s, i) => {
-    const own = cited("speakers", i, `S${s.label}`, s.evidence).filter((seg) => seg.speaker === s.label);
-    if (!own.some((seg) => containsPhrase(seg.text, s.name))) {
-      problems.push({ section: "speakers", index: i, message: `no cited segment spoken by S${s.label} contains the name "${s.name}"` });
+    const segs = cited("speakers", i, `S${s.label}`, s.evidence);
+    // An address names the person spoken to, so it never counts as the speaker's own name.
+    const said = segs.some((seg) => seg.speaker === s.label && containsPhrase(seg.text, s.name) && !addresses(seg.text, s.name));
+    const addressed = segs.some((seg) => seg.speaker !== s.label && addresses(seg.text, s.name));
+    if (!said && !addressed) {
+      problems.push({
+        section: "speakers",
+        index: i,
+        message: `no cited segment in which S${s.label} says the name "${s.name}" or the other speaker addresses S${s.label} as "${s.name}"`,
+      });
     }
   });
 

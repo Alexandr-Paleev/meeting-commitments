@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyChecks, containsPhrase, isCalendarDate, verify, yearForms } from "../lib/verify";
+import { addresses, applyChecks, containsPhrase, isCalendarDate, verify, yearForms } from "../lib/verify";
 import { transcript, validExtraction } from "./fixtures";
 
 const messages = (x: ReturnType<typeof validExtraction>) => verify(x, transcript).map((p) => p.message);
@@ -15,10 +15,10 @@ describe("verify", () => {
     expect(messages(x)).toEqual(["evidence: segment id(s) 99 do not exist"]);
   });
 
-  it("(a) flags a speaker name that this speaker never says", () => {
+  it("(a) flags a speaker name that nobody says", () => {
     const x = validExtraction();
-    x.speakers[1].name = "Sam";
-    expect(messages(x)).toEqual(['no cited segment spoken by S1 contains the name "Sam"']);
+    x.speakers[1].name = "Pat";
+    expect(messages(x)).toEqual(['no cited segment in which S1 says the name "Pat" or the other speaker addresses S1 as "Pat"']);
   });
 
   it("(a) flags names taken from the other speaker's segments (labels swapped)", () => {
@@ -28,8 +28,31 @@ describe("verify", () => {
       { label: 1, name: "Dana", evidence: [1] },
     ];
     expect(messages(x)).toEqual([
-      'no cited segment spoken by S0 contains the name "Lee"',
-      'no cited segment spoken by S1 contains the name "Dana"',
+      'no cited segment in which S0 says the name "Lee" or the other speaker addresses S0 as "Lee"',
+      'no cited segment in which S1 says the name "Dana" or the other speaker addresses S1 as "Dana"',
+    ]);
+  });
+
+  it("(a) accepts a speaker whom the other speaker addresses by name", () => {
+    const x = validExtraction();
+    x.speakers[1].evidence = [3]; // Dana (S0): "Lee, can you draft the release notes by Friday?"
+    expect(verify(x, transcript)).toEqual([]);
+  });
+
+  it("(a) does not take an address as the speaker's own name", () => {
+    const x = validExtraction();
+    x.speakers[0] = { label: 0, name: "Lee", evidence: [3] }; // S0 says "Lee, ...": that names S1
+    x.speakers[1] = { label: 1, name: "Dana", evidence: [1] };
+    expect(messages(x)).toContain('no cited segment in which S0 says the name "Lee" or the other speaker addresses S0 as "Lee"');
+  });
+
+  it("(a) does not take a name in passing as an address", () => {
+    const t = structuredClone(transcript);
+    t.segments[6].text = "We could also ask Lee to redo the logo."; // S0
+    const x = validExtraction();
+    x.speakers[1].evidence = [7];
+    expect(verify(x, t).map((p) => p.message)).toEqual([
+      'no cited segment in which S1 says the name "Lee" or the other speaker addresses S1 as "Lee"',
     ]);
   });
 
@@ -129,7 +152,7 @@ describe("applyChecks", () => {
 
   it("turns unconfirmed speaker names into a decline", () => {
     const x = validExtraction();
-    x.speakers[1].name = "Sam";
+    x.speakers[1].name = "Pat";
     const checked = applyChecks(x, verify(x, transcript), transcript);
     expect(checked.decline?.reason).toBe("speakers_not_identified");
     expect(checked.commitments).toEqual([]);
@@ -146,6 +169,16 @@ describe("helpers", () => {
     expect(containsPhrase("Hi, I'm Anna.", "anna")).toBe(true);
     expect(containsPhrase("Hi, I'm Annabel.", "anna")).toBe(false);
     expect(containsPhrase("Done by Friday, okay?", "by Friday")).toBe(true);
+  });
+
+  it("finds a direct address only where the name opens or closes the sentence", () => {
+    expect(addresses("Lee, can you draft it?", "Lee")).toBe(true);
+    expect(addresses("Thanks, Lee.", "Lee")).toBe(true);
+    expect(addresses("Could you take it, lee?", "Lee")).toBe(true);
+    expect(addresses("Maybe Lee could take it.", "Lee")).toBe(false);
+    expect(addresses("And I'm Lee.", "Lee")).toBe(false);
+    expect(addresses("Leela, can you take it?", "Lee")).toBe(false);
+    expect(addresses("Thanks, Ashlee.", "Lee")).toBe(false);
   });
 
   it("tells calendar dates from relative wording", () => {

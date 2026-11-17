@@ -14,7 +14,10 @@ The user message holds the transcript as numbered segments, one per line: "[id] 
 Every item cites the ids of the segments that support it. Our code turns the ids into quotes with speaker and time, and checks them. Cite the segments that actually say the thing, not nearby ones.
 
 # Speakers
-Map each label to the name that speaker gives for themselves. Cite a segment where that speaker says their own name. If a speaker never says their own name, do not take it from how the other person addresses them: set decline to "speakers_not_identified".
+Map each label to that speaker's name. Two kinds of segments establish a name:
+- the speaker says their own name ("I'm Anna");
+- the other speaker addresses them by name, with the name opening or closing the sentence ("Anna, can you take this?", "Thanks, Anna.").
+Cite those segments. A name mentioned in passing ("ask Anna about it") does not identify anyone. If a speaker's name cannot be established this way, set decline to "speakers_not_identified".
 
 # Final commitments (commitments)
 - List a task only if it was agreed and is still active at the end: a request that the other person accepted, a stated decision to do something, or a speaker committing themselves ("I'll send it").
