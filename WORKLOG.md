@@ -67,3 +67,21 @@ wrong and how it was caught.
   new schema per field.
 - Model output wrong, caught: a test helper's type rejected a word without `punctuated_word`.
   Vitest passed because it does not typecheck; `npm run typecheck` caught it.
+
+## 2026-11-17 - Sample audio generated
+
+- Done: the user set `DEEPGRAM_API_KEY` (a Deepgram key with the default permissions: speech to
+  text and text to speech, no project changes). `npm run samples:generate` wrote A to F to
+  `public/samples/` and `samples/manifests/`. Durations: A 150.7 s, B 149.6 s, C 101.4 s,
+  D 26.5 s, E 10.0 s, F 300.3 s, so A to E are under the 180 s limit and F is over it. Every
+  file is under 4 MB; F is 2.4 MB, so it reaches the server and is declined there by duration.
+- Checked: every MP3 decodes with macOS `afinfo`, and the decoded durations match the manifests
+  within 0.06 s (encoder delay, noted in each manifest). In F, B's lines start right after A ends.
+- TTS spend: the second run sent 1,679 characters ($0.05 at list price); the first run had
+  already sent A's 1,938 characters before it crashed. Paid from the Deepgram free credit, but
+  reported at list price.
+- Model output wrong, caught: the generator (written in Phase 1, never run before because there
+  was no key) passed lamejs output straight to `Buffer.concat`. lamejs is typed as returning
+  `Uint8Array` but returns `Int8Array` at runtime, so typecheck passed and the first real run
+  crashed after the TTS calls. Fixed by wrapping each chunk as a Buffer over the same bytes. The
+  clips were already cached, so the rerun did not pay for them again.

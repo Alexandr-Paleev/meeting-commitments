@@ -1,0 +1,72 @@
+{
+  "sample": "D",
+  "title": "Office move, the speakers never say their names",
+  "audio": "public/samples/D.mp3",
+  "durationSec": 26.52,
+  "sizeBytes": 212544,
+  "encoding": "mp3 64 kbps mono 24000 Hz (lamejs)",
+  "timingNote": "start and end come from PCM sample counts. The MP3 encoder adds a short delay (about 0.05 s) at the start, so decoded times can be slightly later.",
+  "voices": {
+    "FIRST": "aura-2-thalia-en",
+    "SECOND": "aura-2-apollo-en"
+  },
+  "lines": [
+    {
+      "line": "1",
+      "speaker": "FIRST",
+      "start": 0.5,
+      "end": 3.38,
+      "text": "Hi, thanks for joining on short notice."
+    },
+    {
+      "line": "2",
+      "speaker": "SECOND",
+      "start": 3.98,
+      "end": 7.78,
+      "text": "No problem. This is about the office move, right?"
+    },
+    {
+      "line": "3",
+      "speaker": "FIRST",
+      "start": 8.38,
+      "end": 12.3,
+      "text": "Yes. The movers need a final headcount before they can quote."
+    },
+    {
+      "line": "4",
+      "speaker": "SECOND",
+      "start": 12.9,
+      "end": 15.46,
+      "text": "I'll send them the headcount by Thursday."
+    },
+    {
+      "line": "5",
+      "speaker": "FIRST",
+      "start": 16.06,
+      "end": 18.58,
+      "text": "Great. And what about the new key cards?"
+    },
+    {
+      "line": "6",
+      "speaker": "SECOND",
+      "start": 19.18,
+      "end": 22.66,
+      "text": "Let's think about that next week, it's not urgent."
+    },
+    {
+      "line": "7",
+      "speaker": "FIRST",
+      "start": 23.26,
+      "end": 26.02,
+      "text": "Fine by me. Thanks, talk soon."
+    }
+  ],
+  "tts": {
+    "model": "aura-2",
+    "characters": 310,
+    "usdPer1kCharacters": 0.03,
+    "costUsd": 0.0093,
+    "priceSource": "https://deepgram.com/pricing",
+    "priceRetrieved": "2026-11-12"
+  }
+}

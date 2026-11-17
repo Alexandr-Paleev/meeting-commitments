@@ -1,0 +1,19 @@
+{
+  "sample": "E",
+  "title": "Ten seconds of silence",
+  "audio": "public/samples/E.mp3",
+  "durationSec": 10,
+  "sizeBytes": 80448,
+  "encoding": "mp3 64 kbps mono 24000 Hz (lamejs)",
+  "timingNote": "start and end come from PCM sample counts. The MP3 encoder adds a short delay (about 0.05 s) at the start, so decoded times can be slightly later.",
+  "voices": {},
+  "lines": [],
+  "tts": {
+    "model": "aura-2",
+    "characters": 0,
+    "usdPer1kCharacters": 0.03,
+    "costUsd": 0,
+    "priceSource": "https://deepgram.com/pricing",
+    "priceRetrieved": "2026-11-12"
+  }
+}

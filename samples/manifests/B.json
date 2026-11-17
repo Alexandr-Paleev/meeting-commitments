@@ -1,0 +1,240 @@
+{
+  "sample": "B",
+  "title": "Product launch check-in (variant of A, one agreement changed in lines 27 to 29)",
+  "audio": "public/samples/B.mp3",
+  "durationSec": 149.6,
+  "sizeBytes": 1197312,
+  "encoding": "mp3 64 kbps mono 24000 Hz (lamejs)",
+  "timingNote": "start and end come from PCM sample counts. The MP3 encoder adds a short delay (about 0.05 s) at the start, so decoded times can be slightly later.",
+  "voices": {
+    "EMMA": "aura-2-thalia-en",
+    "DANIEL": "aura-2-apollo-en"
+  },
+  "lines": [
+    {
+      "line": "1",
+      "speaker": "EMMA",
+      "start": 0.5,
+      "end": 5.1,
+      "text": "Hi, I'm Emma, I run marketing. Thanks for making time for the launch check-in."
+    },
+    {
+      "line": "2",
+      "speaker": "DANIEL",
+      "start": 5.7,
+      "end": 10.94,
+      "text": "Sure. I'm Daniel, the product lead. Where do you want to start?"
+    },
+    {
+      "line": "3",
+      "speaker": "EMMA",
+      "start": 11.54,
+      "end": 14.66,
+      "text": "Quick status first. Is the build still on track?"
+    },
+    {
+      "line": "4",
+      "speaker": "DANIEL",
+      "start": 15.26,
+      "end": 21.38,
+      "text": "Yes. QA signed off yesterday and the build is stable, so we're in good shape."
+    },
+    {
+      "line": "5",
+      "speaker": "EMMA",
+      "start": 21.98,
+      "end": 27.14,
+      "text": "Great. Then let's talk about the release notes. We need them before the press preview."
+    },
+    {
+      "line": "6",
+      "speaker": "DANIEL",
+      "start": 27.74,
+      "end": 33.7,
+      "text": "Okay, I can take that. I'll draft the release notes and have them ready by Wednesday."
+    },
+    {
+      "line": "7",
+      "speaker": "EMMA",
+      "start": 34.3,
+      "end": 36.62,
+      "text": "Wednesday works. Thank you."
+    },
+    {
+      "line": "8",
+      "speaker": "DANIEL",
+      "start": 37.22,
+      "end": 42.18,
+      "text": "Next, the trade show next month. Do we have banners for the booth yet?"
+    },
+    {
+      "line": "9",
+      "speaker": "EMMA",
+      "start": 42.78,
+      "end": 47.58,
+      "text": "Not yet. I'll order the banners this week. I know a printer who's quick."
+    },
+    {
+      "line": "10",
+      "speaker": "DANIEL",
+      "start": 48.18,
+      "end": 51.3,
+      "text": "Perfect, one less thing to worry about."
+    },
+    {
+      "line": "11",
+      "speaker": "DANIEL",
+      "start": 51.9,
+      "end": 57.98,
+      "text": "We could also run a launch webinar for existing customers, and walk them through the new features."
+    },
+    {
+      "line": "12",
+      "speaker": "EMMA",
+      "start": 58.58,
+      "end": 65.18,
+      "text": "Hmm, maybe. Let's think about it. I'm not sure we have the people for it right now."
+    },
+    {
+      "line": "13",
+      "speaker": "DANIEL",
+      "start": 65.78,
+      "end": 66.74,
+      "text": "Fair enough."
+    },
+    {
+      "line": "14",
+      "speaker": "EMMA",
+      "start": 67.34,
+      "end": 74.42,
+      "text": "Then the pricing page. The new prices go live on Friday, so the page has to be updated before Friday."
+    },
+    {
+      "line": "15",
+      "speaker": "DANIEL",
+      "start": 75.02,
+      "end": 80.26,
+      "text": "Agreed, that has to happen before Friday. I honestly don't know who should own it, though."
+    },
+    {
+      "line": "16",
+      "speaker": "EMMA",
+      "start": 80.86,
+      "end": 85.22,
+      "text": "Me neither. Let's not decide that today, but it definitely has to get done."
+    },
+    {
+      "line": "17",
+      "speaker": "DANIEL",
+      "start": 85.82,
+      "end": 86.5,
+      "text": "Okay."
+    },
+    {
+      "line": "18",
+      "speaker": "EMMA",
+      "start": 87.1,
+      "end": 92.22,
+      "text": "I'll also write the launch email to customers. I can send you a draft by Thursday."
+    },
+    {
+      "line": "19",
+      "speaker": "DANIEL",
+      "start": 92.82,
+      "end": 95.1,
+      "text": "Sounds good, Thursday works for me."
+    },
+    {
+      "line": "20",
+      "speaker": "DANIEL",
+      "start": 95.7,
+      "end": 100.42,
+      "text": "One open point. Has legal approved the new terms of service?"
+    },
+    {
+      "line": "21",
+      "speaker": "EMMA",
+      "start": 101.02,
+      "end": 104.26,
+      "text": "I honestly don't know. I haven't heard anything from them."
+    },
+    {
+      "line": "22",
+      "speaker": "DANIEL",
+      "start": 104.86,
+      "end": 106.3,
+      "text": "Hmm. Okay."
+    },
+    {
+      "line": "23",
+      "speaker": "EMMA",
+      "start": 106.9,
+      "end": 114.94,
+      "text": "Oh, one more thing about the release notes. The press preview moved earlier, so Wednesday is too late. Could you do Tuesday instead?"
+    },
+    {
+      "line": "24",
+      "speaker": "DANIEL",
+      "start": 115.54,
+      "end": 121.22,
+      "text": "Tuesday is tight, but yes. I'll get the release notes to you by Tuesday."
+    },
+    {
+      "line": "25",
+      "speaker": "EMMA",
+      "start": 121.82,
+      "end": 123.66,
+      "text": "Thanks, that really helps."
+    },
+    {
+      "line": "26",
+      "speaker": "DANIEL",
+      "start": 124.26,
+      "end": 126.3,
+      "text": "Anything else on the trade show?"
+    },
+    {
+      "line": "27",
+      "speaker": "EMMA",
+      "start": 126.9,
+      "end": 133.26,
+      "text": "Actually, yes. Good news, the booth at the trade show is confirmed and the budget is approved."
+    },
+    {
+      "line": "28",
+      "speaker": "DANIEL",
+      "start": 133.86,
+      "end": 137.7,
+      "text": "Great. So we still need the banners."
+    },
+    {
+      "line": "29",
+      "speaker": "EMMA",
+      "start": 138.3,
+      "end": 142.38,
+      "text": "Right, the banners are still on. I'll order them this week, like I said."
+    },
+    {
+      "line": "30",
+      "speaker": "DANIEL",
+      "start": 142.98,
+      "end": 145.94,
+      "text": "Good. I think that's everything for today."
+    },
+    {
+      "line": "31",
+      "speaker": "EMMA",
+      "start": 146.54,
+      "end": 149.1,
+      "text": "Yes. Thanks, Daniel. Talk soon."
+    }
+  ],
+  "tts": {
+    "model": "aura-2",
+    "characters": 1891,
+    "usdPer1kCharacters": 0.03,
+    "costUsd": 0.05673,
+    "priceSource": "https://deepgram.com/pricing",
+    "priceRetrieved": "2026-11-12"
+  }
+}

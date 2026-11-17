@@ -147,11 +147,14 @@ async function render(script: Script, rendered: Map<string, Rendered>): Promise<
 
 function encodeMp3(pcm: Int16Array): Buffer {
   const encoder = new Mp3Encoder(1, SAMPLE_RATE, MP3_KBPS);
-  const chunks: Uint8Array[] = [];
+  // lamejs is typed as returning Uint8Array, but returns Int8Array at runtime, which
+  // Buffer.concat rejects. Wrap each chunk as a Buffer over the same bytes.
+  const asBuffer = (chunk: Uint8Array) => Buffer.from(chunk.buffer, chunk.byteOffset, chunk.byteLength);
+  const chunks: Buffer[] = [];
   for (let i = 0; i < pcm.length; i += 1152) {
-    chunks.push(encoder.encodeBuffer(pcm.subarray(i, i + 1152)));
+    chunks.push(asBuffer(encoder.encodeBuffer(pcm.subarray(i, i + 1152))));
   }
-  chunks.push(encoder.flush());
+  chunks.push(asBuffer(encoder.flush()));
   return Buffer.concat(chunks);
 }
 
