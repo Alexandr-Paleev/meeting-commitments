@@ -199,4 +199,11 @@ wrong and how it was caught.
 - A second run of A differed from the first: the pricing page task (agreed, no owner) came back
   only as an open question about its owner. Same input, same prompt for that item, so this is run
   to run variance. The eval will run each sample more than once.
+- Gemini's free tier answered 503 "This model is currently experiencing high demand" on two calls
+  in a row. The SDK retries only when `retryOptions` is set: now up to 3 attempts with a 2 to 8 s
+  backoff on 408 and 5xx, not on 429 (a quota limit). The route passes 429 and 503 on with
+  Retry-After 60, so the UI can say "try again in a minute".
+- Times per sample: speech to text 3 to 6 s; extraction 8 to 14 s, once 31 s (C, right after the
+  503s, so it may include SDK retries, which our metrics cannot see). Cost per recording at list
+  price: $0.005 to $0.014.
 

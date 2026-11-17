@@ -8,11 +8,14 @@ import { transcript, validExtraction } from "./fixtures";
 
 // vi.mock is hoisted above the imports, so lib/extract.ts gets the fake client. The rest of the
 // SDK (enums such as FinishReason) stays real.
-const { generateContent } = vi.hoisted(() => ({ generateContent: vi.fn() }));
+const { generateContent, clientOptions } = vi.hoisted(() => ({ generateContent: vi.fn(), clientOptions: [] as unknown[] }));
 vi.mock("@google/genai", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@google/genai")>()),
   GoogleGenAI: class {
     models = { generateContent };
+    constructor(options: unknown) {
+      clientOptions.push(options);
+    }
   },
 }));
 
@@ -38,6 +41,15 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllEnvs());
 
 describe("extract", () => {
+  it("lets the SDK retry server errors, but not the quota error 429", async () => {
+    generateContent.mockResolvedValueOnce(reply(validExtraction()));
+    await extract(transcript);
+    const { retryOptions } = (clientOptions.at(-1) as { httpOptions: { retryOptions: { attempts: number; httpStatusCodes: number[] } } }).httpOptions;
+    expect(retryOptions.attempts).toBe(3);
+    expect(retryOptions.httpStatusCodes).toContain(503);
+    expect(retryOptions.httpStatusCodes).not.toContain(429);
+  });
+
   it("makes one call when the checks pass", async () => {
     generateContent.mockResolvedValueOnce(reply(validExtraction()));
     const result = await extract(transcript);

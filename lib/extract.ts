@@ -37,13 +37,18 @@ const LEVELS = {
   high: ThinkingLevel.HIGH,
 };
 
+// The free tier often answers 503 "high demand" for a few seconds, so server errors get up to
+// 3 attempts with a short backoff (seconds). Not 429: that is a quota limit, waiting inside the
+// request does not help, and the route tells the user to try again later.
+const RETRY = { attempts: 3, initialDelay: 2, maxDelay: 8, httpStatusCodes: [408, 500, 502, 503, 504] };
+
 const describe = (problems: Problem[]) =>
   problems.map((p) => `${p.section}${p.index >= 0 ? `[${p.index}]` : ""}: ${p.message}`);
 
 export async function extract(transcript: Transcript): Promise<ExtractResult> {
   const { extractModel: model, extractThinkingLevel: thinkingLevel } = serverConfig();
   tokenPrice(model); // throws before any call if the model has no price in lib/pricing.ts
-  const ai = new GoogleGenAI({ apiKey: secret("GEMINI_API_KEY") });
+  const ai = new GoogleGenAI({ apiKey: secret("GEMINI_API_KEY"), httpOptions: { retryOptions: RETRY } });
   const started = performance.now();
   const contents: Content[] = [{ role: "user", parts: [{ text: transcriptMessage(transcript) }] }];
   const responses: GenerateContentResponse[] = [];

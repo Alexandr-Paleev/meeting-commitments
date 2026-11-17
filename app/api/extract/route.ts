@@ -31,8 +31,9 @@ export async function POST(request: Request) {
     return Response.json(await extract(transcript));
   } catch (e) {
     if (e instanceof ModelStopError) return error(502, e.message);
-    if (e instanceof ApiError && e.status === 429) {
-      return error(429, "The model is busy right now. Please try again in a minute.", { "Retry-After": "60" });
+    // 429 is the free tier quota, 503 means Gemini is overloaded even after the SDK's retries.
+    if (e instanceof ApiError && (e.status === 429 || e.status === 503)) {
+      return error(e.status, "The model is busy right now. Please try again in a minute.", { "Retry-After": "60" });
     }
     console.error("extract failed", e);
     return error(502, "Extraction failed. Please try again.");
