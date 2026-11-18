@@ -304,3 +304,34 @@ wrong and how it was caught.
   which ran from the Mac) and extraction 8.8 s with 3,633 output tokens (5,214 on average for A
   in the eval). The numbers in NOTES stay those of the eval.
 - The video was recorded on the deployed site and uploaded to Google Drive.
+
+## 2026-11-18 - Final review against the requirements
+
+- Checked the project against its requirements point by point. Two gaps: the cost per audio minute
+  was not stated, and the notes did not say which code was written for the project. The eval report
+  now has a per-audio-minute column. The three reports were rebuilt from their saved runs
+  (`--saved`, no API calls); only that column and the recheck date changed. NOTES quotes the
+  column and says what came from `create-next-app`.
+- The video was 4:58 (read from the file), over the 3 minute limit. It was recorded again with a
+  shorter script: 3:20, still slightly over, kept by the user's decision. It replaced the first
+  one as a new version of the same Drive file, so the link stays.
+- Three code reviews of `app`, `lib`, `scripts` and `tests` (Claude's review skill). The first
+  found 10 issues and Claude fixed four. The second and third showed that three of those fixes
+  caused new problems (model output wrong, caught by the reviews), so they were taken back:
+  - keeping the first answer when the retry fails broke the project rule that an unfinished answer
+    is an error shown to the user, hid the failure from the metrics and the eval, and could turn a
+    recoverable error into a decline. A failed retry stays an error with Try again; a new test
+    pins that;
+  - accepting files the browser has no type for let in files the browser cannot play, so a long
+    one would be billed by Deepgram before the length check. They are refused again;
+  - keeping "Dr." or "p.m." inside a sentence moved a name off the start of its segment, where the
+    check for a name used to address someone looks for it, and merged sentences that really end
+    there. The split is as before.
+- Kept: the region block now also covers EU regions that geo-IP reports under their own codes
+  (Reunion, Guadeloupe and others), the Crown dependencies and Gibraltar.
+- Not fixed, and listed in NOTES: the three above, a name the speaker only mentions confirms that
+  speaker, an answer that breaks the schema gets no retry, an item moved by the checks keeps a
+  generic question, and an impossible date passes. Also left: an unknown evidence id fails an item
+  instead of being dropped, a retry that parses but is worse replaces the first answer, the
+  retry's output cap could outlast the 300 s limit, the checks summary text in two rare cases, and
+  a few small duplications.

@@ -1,11 +1,11 @@
 # Project rules: meeting-commitments
 
-A hiring take-home. A one-page Next.js app: the user uploads a short English recording of two people
+A small product prototype. A one-page Next.js app: the user uploads a short English recording of two people
 planning work, and gets back the final agreed tasks (with owner and deadline), unresolved questions,
 not-commitments and items that need clarification. Every field carries a verbatim quote with speaker,
 timestamp and a play button for just that segment.
 
-The owner of this repo must understand every file and may be asked to change something live.
+The owner of this repo must understand every file and be able to change something live.
 Keep the code small (readable in about 30 minutes), explicit and free of abstractions for
 hypothetical needs.
 
@@ -20,7 +20,7 @@ hypothetical needs.
   commands, and the user runs them (the user's rule since 2026-11-17).
 - Append an entry to WORKLOG.md for each work step: what was done, what went wrong, and every case
   where model output was wrong and how it was caught.
-- The assignment brief text is never committed. Docs describe the product in our own words.
+- Docs describe the product in our own words.
 - Plain hyphens only in docs, UI text and commit messages. No em or en dashes.
 - Before using any API parameter, model id, limit or price, check the official docs. Next.js 16 docs
   ship in `node_modules/next/dist/docs/`.
@@ -101,7 +101,7 @@ hypothetical needs.
 - Stretch goals only after the eval is green: microphone input, a holdout written by the user after
   the pipeline is frozen, a cheaper extraction model with pass rate vs cost.
 
-## Decisions from 2026-11-17 (scope cut to finish on time)
+## Decisions from 2026-11-17 (scope cut to keep it small)
 
 - Stretch goals are dropped.
 - The morning plan to stay on Claude Opus 5.5 (and to defer its refusal fallback) was replaced the

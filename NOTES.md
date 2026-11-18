@@ -1,4 +1,4 @@
-# Delivery notes
+# Project notes
 
 Meeting commitments: upload a short English recording of two people planning work and get the
 final agreed tasks with owner and deadline, the proposals that did not become commitments, the
@@ -98,6 +98,11 @@ price is in `lib/pricing.ts` with its source and the date it was read. Numbers a
 | Speech | None in the app. Voicing the test set once with Deepgram Aura-2 ($0.030 per 1,000 characters) cost about $0.11 (WORKLOG) | |
 | Intermediaries | None: the server calls Deepgram and Gemini directly | |
 | Total variable cost | | $0.0244 (B $0.0260, C $0.0238, a decline for silence $0.0007) |
+| Per audio minute | | $0.0097 (B $0.0104, C $0.0141) |
+
+So a recording that gets a list costs about one to one and a half cents per audio minute. Speech to
+text is a fixed $0.0043 of that. The model's part depends mostly on how much it writes and on
+retries rather than on length, which is why the shorter C costs more per minute.
 
 Hosting, separate: on Vercel Pro with 2 GB functions, the median request time of a recording that
 gets a list (18.5 s) costs about $0.0001 of provisioned memory and less than $0.0001 for the two
@@ -148,10 +153,26 @@ prices.
 - No accounts, no database, no stored audio. The transcript travels through the browser with an
   HMAC, so the extraction route only accepts transcripts this server produced.
 
+## Security
+
+- Keys stay on the server. The Deepgram and Gemini keys and the signing secret are read only in the
+  API routes and never reach the browser.
+- Only this server's transcripts reach the model. The HMAC on the transcript means nobody can use
+  `/api/extract` to send their own text to Gemini.
+- What was said is data, not instructions. The model returns segment ids and code turns them into
+  quotes, so words in a recording cannot make the page show a quote that was not said. They could
+  still mislead the model about what was agreed; the checks limit that but do not rule it out.
+- Input is checked in the browser and again on the server: audio or video only, 4 MB, 3 minutes.
+- The app keeps nothing: no accounts, no database, and the audio is not saved.
+- Limits: the rate limits live in memory per server instance, and a signed transcript can be sent
+  to `/api/extract` again (each time is a model call) until those limits stop it.
+
 ## Known limits
 
 - Speaker labels come from diarization, which makes mistakes at turn changes, mostly on short
   sentences. A wrong label shows a quote under the wrong speaker; the eval counts every such quote.
+- A name also counts as confirmed when the speaker only mentions it ("I'll ask Lee"), so the
+  check would not catch a model that maps a speaker to a name they merely mentioned.
 - Speech to text can mishear words ("can" for "could"), and the model only sees the transcript.
 - The same input can give different answers on different runs, which is why the eval runs every
   sample three times.
@@ -169,12 +190,23 @@ prices.
 - More test recordings: real voices, noise, accents, people talking over each other, and a holdout
   set written after the prompt is frozen.
 - Recording from the microphone, and export of the list.
+- Fixes found in the final code reviews and left for later. Quick versions of the first three
+  caused new problems and were taken back: keep the first answer when the retry fails without
+  hiding the failure; accept files the browser has no type for without paying for long files it
+  cannot play; keep "Dr." or "five p.m." inside one sentence without breaking the check for a name
+  used to address someone. Also: an answer that breaks the schema gets no retry, an item the checks
+  move to Needs clarification keeps only a generic question, and an impossible date such as
+  February 31 is not rejected.
 
 ## Reused components
 
 Next.js 16.4.6, React 19.3.1, Zod 4.6.7 (schema and JSON schema), `@google/genai` 2.32.0, the
 Deepgram REST API called with `fetch` (no SDK), Vitest 5.1.0, ESLint 9 with `eslint-config-next`,
 tsx, and `@breezystack/lamejs` 1.2.7 (only to encode the sample MP3 files). No UI kit.
+
+The Next.js config files follow a `create-next-app` 16.4.6 run, without its fonts and demo assets.
+Everything else (the pipeline, the prompt, the checks, the UI, the eval and the test set) was
+written for this project.
 
 ## Time spent
 
