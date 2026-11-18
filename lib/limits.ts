@@ -38,7 +38,9 @@ export function takeRequest(ip: string, now = Date.now()): Allowance {
 const PAID_TIER_ONLY = new Set([
   ...["AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "GR", "HR", "HU"], // EU
   ...["IE", "IT", "LT", "LU", "LV", "MT", "NL", "PL", "PT", "RO", "SE", "SI", "SK"], // EU
+  ...["GF", "GP", "MQ", "RE", "YT", "MF", "AX"], // EU regions that geo-IP reports under their own codes
   ...["IS", "LI", "NO", "CH", "GB"], // rest of the EEA, Switzerland, UK
+  ...["JE", "GG", "IM", "GI"], // Crown dependencies and Gibraltar, treated as the UK to be safe
 ]);
 
 export const REGION_MESSAGE =

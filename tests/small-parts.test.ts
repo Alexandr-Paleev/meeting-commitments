@@ -74,6 +74,8 @@ describe("limits", () => {
     expect(regionBlocked(from("DE"))).toBe(true);
     expect(regionBlocked(from("NO"))).toBe(true);
     expect(regionBlocked(from("GB"))).toBe(true);
+    expect(regionBlocked(from("RE"))).toBe(true); // Reunion, part of the EU with its own country code
+    expect(regionBlocked(from("JE"))).toBe(true); // Jersey, treated as the UK to be safe
     expect(regionBlocked(from("UA"))).toBe(false);
     expect(regionBlocked(from())).toBe(false); // a local run has no country header
     vi.stubEnv("GEMINI_PAID_TIER", "true");

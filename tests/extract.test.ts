@@ -92,6 +92,13 @@ describe("extract", () => {
     expect(result.commitments.map((c) => c.task)).toEqual(["Update the wiki"]);
   });
 
+  it("stops with a clear error when the retry does not finish its answer either", async () => {
+    // An answer that does not finish with STOP is an error shown to the user (CLAUDE.md), even on the retry.
+    generateContent.mockResolvedValueOnce(reply(withBadOwner())).mockResolvedValueOnce(reply(validExtraction(), "MAX_TOKENS"));
+    const error = await extract(transcript).catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(ModelStopError);
+  });
+
   it("stops with a clear error when the model does not finish its answer", async () => {
     generateContent.mockResolvedValueOnce(reply(validExtraction(), "MAX_TOKENS"));
     const error = await extract(transcript).catch((e: unknown) => e);
