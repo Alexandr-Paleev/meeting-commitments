@@ -178,17 +178,19 @@ function report({ generatedAt, recheckedAt, setup, samples }: Saved): string {
   out.push(
     "## Time and cost per recording",
     "",
-    "Median times and mean cost over the runs that finished. Transcript: time to the transcript (speech to text). List: time to the list (speech to text plus extraction, with its retry if the checks asked for one), with the fastest and slowest run in brackets. Times are measured around the server functions, so the upload from the browser is not included. Cost is at list prices (lib/pricing.ts), even though the demo runs on free credit and the free tier.",
+    "Median times and mean cost over the runs that finished. Transcript: time to the transcript (speech to text). List: time to the list (speech to text plus extraction, with its retry if the checks asked for one), with the fastest and slowest run in brackets. Times are measured around the server functions, so the upload from the browser is not included. Cost is at list prices (lib/pricing.ts), even though the demo runs on free credit and the free tier. Per audio minute: the total cost divided by the length of the recording.",
     "",
-    "| Sample | Audio | Transcript | List | Model calls | Input tokens | Output tokens | Speech to text cost | Model cost | Total cost |",
-    "|---|---|---|---|---|---|---|---|---|---|",
+    "| Sample | Audio | Transcript | List | Model calls | Input tokens | Output tokens | Speech to text cost | Model cost | Total cost | Per audio minute |",
+    "|---|---|---|---|---|---|---|---|---|---|---|",
   );
   for (const s of samples) {
     const done = s.runs.flatMap((r) => (r.output ? [r.output] : []));
+    const audioMinutes = done[0] ? done[0].stt.metrics.audioSeconds / 60 : 0;
+    const total = mean(done.map(runCost));
     const ex = done.flatMap((o) => (o.extraction ? [o.extraction.metrics] : []));
     const toList = done.flatMap((o) => (o.extraction ? [o.stt.metrics.sttSeconds + o.extraction.metrics.extractSeconds] : []));
     out.push(
-      `| ${s.name} | ${done[0] ? formatTime(done[0].stt.metrics.audioSeconds) : "-"} | ${seconds(median(done.map((o) => o.stt.metrics.sttSeconds)))} | ${seconds(median(toList))}${toList.length > 1 ? ` (${Math.min(...toList).toFixed(1)} to ${seconds(Math.max(...toList))})` : ""} | ${ex.length ? mean(ex.map((m) => m.calls)).toFixed(1) : "-"} | ${whole(mean(ex.map((m) => m.inputTokens)))} | ${whole(mean(ex.map((m) => m.outputTokens)))} | ${usd(mean(done.map((o) => o.stt.metrics.sttCostUsd)))} | ${usd(mean(ex.map((m) => m.llmCostUsd)))} | ${usd(mean(done.map(runCost)))} |`,
+      `| ${s.name} | ${done[0] ? formatTime(done[0].stt.metrics.audioSeconds) : "-"} | ${seconds(median(done.map((o) => o.stt.metrics.sttSeconds)))} | ${seconds(median(toList))}${toList.length > 1 ? ` (${Math.min(...toList).toFixed(1)} to ${seconds(Math.max(...toList))})` : ""} | ${ex.length ? mean(ex.map((m) => m.calls)).toFixed(1) : "-"} | ${whole(mean(ex.map((m) => m.inputTokens)))} | ${whole(mean(ex.map((m) => m.outputTokens)))} | ${usd(mean(done.map((o) => o.stt.metrics.sttCostUsd)))} | ${usd(mean(ex.map((m) => m.llmCostUsd)))} | ${usd(total)} | ${audioMinutes > 0 ? usd(total / audioMinutes) : "-"} |`,
     );
   }
   const calls = extractions.reduce((n, x) => n + x.metrics.calls, 0);
