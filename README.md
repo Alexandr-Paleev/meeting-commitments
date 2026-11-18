@@ -5,6 +5,9 @@ owner and deadline, the proposals that did not become commitments, the questions
 the items that need clarification. Every value carries a verbatim quote with speaker, timestamp
 and a play button for just that sentence.
 
+- Demo: https://meeting-commitments.vercel.app
+- Video walkthrough: https://drive.google.com/file/d/18gyT4uOohGfo7Fn9Y0whzTvmwQu5X-J4/view
+
 How it works, results, cost and decisions: `NOTES.md`. Eval results: `eval/report.md`.
 
 ## Run it locally

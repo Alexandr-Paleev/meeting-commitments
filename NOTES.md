@@ -5,8 +5,8 @@ final agreed tasks with owner and deadline, the proposals that did not become co
 questions still open and the items that need clarification. Every value carries a verbatim quote
 with speaker, timestamp and a play button for just that sentence.
 
-- Demo: TODO(user) link
-- Video (3 minutes): TODO(user) link
+- Demo: https://meeting-commitments.vercel.app
+- Video walkthrough: https://drive.google.com/file/d/18gyT4uOohGfo7Fn9Y0whzTvmwQu5X-J4/view
 - Setup and how to run everything: `README.md`
 
 ## How it works
@@ -178,4 +178,4 @@ tsx, and `@breezystack/lamejs` 1.2.7 (only to encode the sample MP3 files). No U
 
 ## Time spent
 
-TODO(user)
+8 hours.

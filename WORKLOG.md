@@ -281,3 +281,26 @@ wrong and how it was caught.
 - Went wrong: one network error to Deepgram ("other side closed") during the medium run, retried
   by the eval and listed in its report.
 
+
+## 2026-11-18 - Deploy, commit history and video
+
+- Before the deploy, a clean clone of the repository installed, passed the unit tests and built
+  with `next build`, so nothing the build needs was left uncommitted.
+- Went wrong: a long `git add` copied from a wrapped terminal line split in two, so three files
+  missed a commit and that commit did not build; a follow-up commit added them. Commands for the
+  user are now given as short single lines.
+- Model output wrong, caught by the user on GitHub: the first 9 commits carried a
+  `Co-Authored-By: Claude` trailer that Claude added before the user's rule against it, so GitHub
+  showed Claude as a co-author. At the user's request the trailer was removed from the history
+  with `git filter-branch` (files, authors, dates and the rest of each message unchanged, tested
+  on a scratch clone first), and the GitHub repository was created again so that the old commits
+  do not stay in its activity log.
+- Deployed on Vercel (Hobby) with the two API keys and a new signing secret. The production
+  domain opens without a login; the generated deployment URL answers with a redirect (Vercel's
+  deployment protection).
+- The first try on the deployed site got the 451 region refusal: the Mac's traffic went out
+  through a VPN in the Netherlands. With the VPN off, sample A matched its expected result and
+  passed every check on the first answer. Speech to text took 0.8 s (2.5 to 4.0 s in the eval,
+  which ran from the Mac) and extraction 8.8 s with 3,633 output tokens (5,214 on average for A
+  in the eval). The numbers in NOTES stay those of the eval.
+- The video was recorded on the deployed site and uploaded to Google Drive.
